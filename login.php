@@ -37,15 +37,15 @@ include 'includes/header.php';
 
 <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="flex justify-center text-primary text-4xl mb-4">
-            <i class="fas fa-robot"></i>
+        <div class="flex justify-center mb-4">
+            <img src="assets/technohacks_logo.png" alt="TechnoHacks Solutions" class="h-24 object-contain">
         </div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+        <h2 class="mt-4 text-center text-3xl font-extrabold text-gray-900">
+            TechnoHacks Solutions
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-            Or
-            <a href="register.php" class="font-medium text-primary hover:text-indigo-500">
+            Sign in to your account or
+            <a href="register.php" class="font-bold text-primary hover:underline">
                 create a new account
             </a>
         </p>

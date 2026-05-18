@@ -24,7 +24,7 @@ $total_applications = $stmt->fetchColumn();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - AI Job Portal</title>
+    <title>Admin Dashboard - TechnoHacks Job Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

@@ -30,42 +30,51 @@ $applications = $stmt->fetchAll();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Applications - AI Job Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications - TechnoHacks Job Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
-                extend: { colors: { primary: '#4F46E5', secondary: '#10B981' } }
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',     // Indigo
+                        secondary: '#10B981',   // Emerald
+                        darkbg: '#0F172A',      // Slate-900
+                    }
+                }
             }
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-900 text-white flex flex-col h-full shadow-lg">
-        <div class="h-16 flex items-center px-6 border-b border-gray-800">
-            <a href="../index.php" class="text-xl font-bold text-white flex items-center">
-                <i class="fas fa-robot text-primary mr-2"></i> AIJobs
-            </a>
-        </div>
-        <div class="p-6">
-            <nav class="space-y-2">
-                <a href="dashboard.php" class="text-gray-400 hover:bg-gray-800 hover:text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-home w-5"></i> Dashboard</a>
-                <a href="profile.php" class="text-gray-400 hover:bg-gray-800 hover:text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-user w-5"></i> Edit Profile</a>
-                <a href="resume.php" class="text-gray-400 hover:bg-gray-800 hover:text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-file-alt w-5"></i> Resume Builder</a>
-                <a href="../jobs.php" class="text-gray-400 hover:bg-gray-800 hover:text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-search w-5"></i> Search Jobs</a>
-                <a href="applications.php" class="bg-gray-800 text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-briefcase w-5"></i> My Applications</a>
-                <a href="ai_recommendations.php" class="text-gray-400 hover:bg-gray-800 hover:text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-brain w-5"></i> AI Matches</a>
-                <a href="referrals.php" class="text-gray-400 hover:bg-gray-800 hover:text-white block px-4 py-2.5 rounded-md text-sm font-medium transition"><i class="fas fa-users w-5"></i> Refer & Earn</a>
-            </nav>
-        </div>
-    </aside>
+    <?php include 'includes/sidebar.php'; ?>
 
-    <main class="flex-1 overflow-y-auto bg-gray-50">
-        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 sticky top-0">
-            <h2 class="text-xl font-semibold text-gray-800">My Applications</h2>
+    <!-- Main Content Panel -->
+    <main class="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
+        <!-- Top bar Header -->
+        <header class="bg-white border-b border-gray-100 h-20 flex items-center justify-between px-8 z-10 sticky top-0">
+            <div>
+                <h2 class="text-2xl font-black text-gray-800 tracking-tight">My Applications</h2>
+                <p class="text-xs text-gray-400 font-medium">Review and track the real-time status of your active job applications.</p>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <!-- Live Clock/Date Indicator -->
+                <div class="hidden md:flex items-center gap-2 text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                    <i class="far fa-calendar-alt text-primary text-sm"></i>
+                    <span><?php echo date('D, M d, Y'); ?></span>
+                </div>
+            </div>
         </header>
 
         <div class="p-8">

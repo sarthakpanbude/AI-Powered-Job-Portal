@@ -111,17 +111,28 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI Resume Builder & Score Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechnoHacks Resume Builder & Score Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
-                extend: { colors: { primary: '#4F46E5', secondary: '#10B981' } }
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',     // Indigo
+                        secondary: '#10B981',   // Emerald
+                        darkbg: '#0F172A',      // Slate-900
+                    }
+                }
             }
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
         @media print {
             body * { visibility: hidden; }
             #resume-preview, #resume-preview * { visibility: visible; }
@@ -129,20 +140,27 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
-    <!-- Topbar Nav -->
-    <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 sticky top-0 z-50">
-        <div class="flex items-center space-x-2">
-            <a href="dashboard.php" class="text-gray-500 hover:text-gray-900 mr-4"><i class="fas fa-arrow-left"></i> Dashboard</a>
-            <h2 class="text-xl font-semibold text-gray-800"><i class="fas fa-file-invoice text-primary mr-2"></i>AI Resume Builder & Score</h2>
-        </div>
-        <div class="flex items-center space-x-4">
-            <button onclick="window.print()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition"><i class="fas fa-print mr-1"></i> Print / PDF</button>
-        </div>
-    </header>
+    <!-- Sidebar -->
+    <?php include 'includes/sidebar.php'; ?>
 
-    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Main Content Panel -->
+    <main class="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
+        <!-- Top bar Header -->
+        <header class="bg-white border-b border-gray-100 h-20 flex items-center justify-between px-8 z-10 sticky top-0 shrink-0">
+            <div>
+                <h2 class="text-2xl font-black text-gray-800 tracking-tight">Resume Builder</h2>
+                <p class="text-xs text-gray-400 font-medium">Build your resume and optimize your real-time ATS match rating.</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.print()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-50 transition shadow-sm"><i class="fas fa-print mr-1"></i> Print / PDF</button>
+            </div>
+        </header>
+
+        <!-- Main Viewport -->
+        <div class="p-8 flex-1">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         <!-- Left Side: Interactive Form -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
@@ -321,12 +339,12 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
                 </div>
 
                 <div class="border-t pt-6 text-center text-[10px] text-gray-400">
-                    Generated via AI Job Portal Resume Builder.
+                    Generated via TechnoHacks Job Portal Resume Builder.
                 </div>
             </div>
+            </div>
         </div>
-
-    </div>
+    </main>
 
     <script>
         function addEducationRow() {

@@ -1,6 +1,13 @@
 <?php
 session_start();
 require_once 'config/db.php';
+
+$student_id = 0;
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'student') {
+    $stmt_student = $pdo->prepare("SELECT id FROM students WHERE user_id = ?");
+    $stmt_student->execute([$_SESSION['user_id']]);
+    $student_id = $stmt_student->fetchColumn() ?: 0;
+}
 include 'includes/header.php';
 include 'includes/navbar.php';
 
@@ -91,9 +98,18 @@ $jobs = $stmt->fetchAll();
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                         <div class="flex flex-col sm:flex-row justify-between gap-4">
                             <div class="flex gap-4">
-                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-building text-2xl text-gray-400"></i>
-                                </div>
+                                <?php 
+                                $logo_path = '';
+                                if (!empty($job['company_logo']) && $job['company_logo'] !== 'default_company.png' && file_exists('uploads/logos/' . $job['company_logo'])) {
+                                    $logo_path = 'uploads/logos/' . $job['company_logo'];
+                                }
+                                if ($logo_path): ?>
+                                    <img src="<?php echo htmlspecialchars($logo_path); ?>" alt="Company Logo" class="w-16 h-16 rounded-lg object-cover bg-white border border-gray-100 flex-shrink-0">
+                                <?php else: ?>
+                                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-building text-2xl text-gray-400"></i>
+                                    </div>
+                                <?php endif; ?>
                                 <div>
                                     <h2 class="text-xl font-bold text-gray-900"><a href="#" class="hover:text-primary"><?php echo htmlspecialchars($job['title']); ?></a></h2>
                                     <p class="text-gray-600"><?php echo htmlspecialchars($job['company_name']); ?></p>
@@ -110,7 +126,22 @@ $jobs = $stmt->fetchAll();
                                 <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'student'): ?>
                                     <span class="bg-indigo-50 text-primary text-xs font-bold px-2 py-1 rounded mb-2 border border-indigo-100" title="AI Match Score"><i class="fas fa-robot mr-1"></i> <?php echo rand(60, 99); ?>% Match</span>
                                 <?php endif; ?>
-                                <button class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition w-full sm:w-auto">Apply Now</button>
+                                
+                                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'student'): 
+                                    $has_applied = false;
+                                    if ($student_id > 0) {
+                                        $stmt_check = $pdo->prepare("SELECT id FROM applications WHERE job_id = ? AND student_id = ?");
+                                        $stmt_check->execute([$job['id'], $student_id]);
+                                        $has_applied = $stmt_check->fetch() ? true : false;
+                                    }
+                                    if ($has_applied): ?>
+                                        <button disabled class="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium cursor-not-allowed w-full sm:w-auto"><i class="fas fa-check mr-1"></i> Applied</button>
+                                    <?php else: ?>
+                                        <button onclick="easyApply(<?php echo $job['id']; ?>, this)" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition w-full sm:w-auto">Apply Now</button>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <a href="login.php" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition w-full sm:w-auto text-center block">Apply Now</a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -127,3 +158,77 @@ $jobs = $stmt->fetchAll();
 </div>
 
 <?php include 'includes/footer.php'; ?>
+
+<script>
+    function easyApply(jobId, buttonElement) {
+        if (buttonElement.disabled) return;
+        
+        const originalText = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<i class="fas fa-spinner animate-spin mr-1"></i> Applying...';
+        buttonElement.className = "bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium cursor-not-allowed w-full sm:w-auto";
+
+        const formData = new FormData();
+        formData.append('job_id', jobId);
+
+        // Submit to the apply handler relative to student directory
+        fetch('student/apply_job.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                buttonElement.innerHTML = '<i class="fas fa-check mr-1"></i> Applied';
+                buttonElement.className = "bg-green-600 text-white px-4 py-2 rounded text-sm font-medium cursor-not-allowed w-full sm:w-auto";
+                showToast(data.message, 'success');
+            } else {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = originalText;
+                buttonElement.className = "bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition w-full sm:w-auto";
+                showToast(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalText;
+            buttonElement.className = "bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition w-full sm:w-auto";
+            showToast('An unexpected server communication error occurred.', 'error');
+        });
+    }
+
+    function showToast(message, type = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-xl shadow-lg border text-sm font-semibold flex items-center gap-3 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${
+            type === 'success' 
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+            : 'bg-red-50 text-red-800 border-red-200'
+        }`;
+        
+        const icon = type === 'success' 
+            ? '<i class="fas fa-check-circle text-emerald-500 text-lg"></i>' 
+            : '<i class="fas fa-exclamation-circle text-red-500 text-lg"></i>';
+
+        toast.innerHTML = `${icon} <span class="flex-1">${message}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.remove('translate-y-2', 'opacity-0');
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4500);
+    }
+</script>

@@ -1,12 +1,21 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$logo_path = 'assets/technohacks_logo.png';
+if (!file_exists($logo_path)) {
+    $logo_path = '../assets/technohacks_logo.png';
+}
 ?>
 <nav class="bg-white shadow-sm sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="index.php" class="text-2xl font-bold text-primary"><i class="fas fa-robot mr-2"></i>AIJobs</a>
+                    <a href="index.php" class="flex items-center gap-2">
+                        <img src="<?php echo htmlspecialchars($logo_path); ?>" alt="TechnoHacks Solutions" class="h-10 object-contain">
+                        <span class="text-xl font-black text-gray-900 tracking-tight">TechnoHacks <span class="text-primary font-medium">Jobs</span></span>
+                    </a>
                 </div>
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                     <a href="index.php" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
