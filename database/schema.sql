@@ -99,16 +99,16 @@ CREATE TABLE IF NOT EXISTS `notifications` (
 );
 
 -- Default Admin
-INSERT INTO `users` (`email`, `password`, `role`, `status`) VALUES
-('admin@admin.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active');
+INSERT IGNORE INTO `users` (`id`, `email`, `password`, `role`, `status`) VALUES
+(1, 'admin@admin.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active');
 -- Password is 'password'
 
 -- Default Recruiter
-INSERT INTO `users` (`email`, `password`, `role`, `status`) VALUES
-('recruiter@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'recruiter', 'active');
-INSERT INTO `recruiters` (`user_id`, `company_name`) VALUES (LAST_INSERT_ID(), 'Tech Innovations Inc.');
+INSERT IGNORE INTO `users` (`id`, `email`, `password`, `role`, `status`) VALUES
+(2, 'recruiter@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'recruiter', 'active');
+INSERT IGNORE INTO `recruiters` (`user_id`, `company_name`) VALUES (2, 'Tech Innovations Inc.');
 
 -- Default Student
-INSERT INTO `users` (`email`, `password`, `role`, `status`) VALUES
-('student@student.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'active');
-INSERT INTO `students` (`user_id`, `first_name`, `last_name`, `referral_code`) VALUES (LAST_INSERT_ID(), 'John', 'Doe', 'JOHN1234');
+INSERT IGNORE INTO `users` (`id`, `email`, `password`, `role`, `status`) VALUES
+(3, 'student@student.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'active');
+INSERT IGNORE INTO `students` (`user_id`, `first_name`, `last_name`, `referral_code`) VALUES (3, 'John', 'Doe', 'JOHN1234');

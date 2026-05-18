@@ -166,6 +166,71 @@ usort($matches, function($a, $b) {
         <!-- Main Dashboard Viewport -->
         <div class="p-8 space-y-8 flex-1">
             
+            <!-- Shine.com Styled Premium Search Banner -->
+            <div class="bg-gradient-to-br from-[#F3F4F6] via-[#F8FAFC] to-[#EEF2F6] rounded-3xl border border-blue-100 p-8 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-80 h-80 bg-blue-200/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+                
+                <div class="relative z-10 text-center max-w-4xl mx-auto">
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tight">Search Your Dream Job</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1.5">Discover 5 lakh+ Job Opportunities</p>
+
+                    <!-- Pill Search Bar Form -->
+                    <form action="../jobs.php" method="GET" class="bg-white premium-shadow rounded-2xl md:rounded-full border border-gray-150 p-2 flex flex-col md:flex-row items-center gap-2 mt-6 max-w-3xl mx-auto">
+                        <!-- Skills input -->
+                        <div class="flex-1 w-full flex items-center gap-2.5 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150">
+                            <i class="fas fa-search text-primary text-sm"></i>
+                            <input type="text" name="q" class="w-full text-xs font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Skills / Roles">
+                        </div>
+
+                        <!-- Experience dropdown -->
+                        <div class="w-full md:w-48 flex items-center gap-2.5 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150 relative">
+                            <i class="fas fa-briefcase text-primary text-sm"></i>
+                            <select name="experience" class="w-full text-xs font-bold text-slate-800 bg-transparent outline-none border-none cursor-pointer appearance-none pr-6">
+                                <option value="">Select Experience</option>
+                                <option value="0">Freshers (0 Yrs)</option>
+                                <option value="1">1-2 Years</option>
+                                <option value="3">3-5 Years</option>
+                                <option value="5">5+ Years</option>
+                            </select>
+                            <i class="fas fa-chevron-down text-slate-400 text-[10px] absolute right-4 pointer-events-none"></i>
+                        </div>
+
+                        <!-- Location input -->
+                        <div class="flex-1 w-full flex items-center gap-2.5 px-4 py-2">
+                            <i class="fas fa-map-marker-alt text-primary text-sm"></i>
+                            <input type="text" name="location" class="w-full text-xs font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Location">
+                        </div>
+
+                        <!-- Search Button -->
+                        <button type="submit" class="w-full md:w-auto bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs px-8 py-3.5 rounded-xl md:rounded-full transition shadow-sm shadow-primary/20">
+                            Search
+                        </button>
+                    </form>
+
+                    <!-- Live walkin alert badge -->
+                    <div class="mt-5">
+                        <a href="../jobs.php" class="inline-flex items-center gap-2 bg-indigo-50/80 hover:bg-indigo-100/90 border border-indigo-100/50 rounded-full px-4 py-1.5 text-[10px] font-bold text-indigo-700 shadow-sm transition">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                            Walkin drives near you - register now <i class="fas fa-arrow-right text-[8px] ml-0.5"></i>
+                        </a>
+                    </div>
+
+                    <!-- Trusted logos -->
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-3">TRUSTED BY TOP ENTERPRISES</p>
+                    <div class="flex flex-wrap items-center justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition duration-300">
+                        <span class="text-xs font-black text-gray-500 tracking-tight">Capgemini</span>
+                        <span class="text-xs font-black text-gray-500 tracking-tight">genpact</span>
+                        <span class="text-xs font-black text-gray-500 tracking-tight">ICICI Bank</span>
+                        <span class="text-xs font-black text-gray-500 tracking-tight">kotak</span>
+                        <span class="text-xs font-black text-gray-500 tracking-tight">Tech Mahindra</span>
+                    </div>
+                </div>
+            </div>
+            
+            
             <!-- Dynamic Gradient Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Applied Jobs -->
@@ -981,7 +1046,7 @@ usort($matches, function($a, $b) {
                                     <i class="fas fa-wallet text-indigo-500 mr-2 w-4"></i> <strong>Salary:</strong> ₹6,00,000 - ₹12,00,000 / yr
                                 </p>
                                 <p id="pathway-demand" class="text-xs text-gray-500 flex items-center">
-                                    <i class="fas fa-fire text-amber-500 mr-2 w-4"></i> <strong>Demand:</strong> Very High (15k+ openings)
+                                    <i class="fas fa-fire text-orange-500 mr-2 w-4"></i> <strong>Demand:</strong> Very High (15k+ openings)
                                 </p>
                             </div>
                         </div>
@@ -1298,7 +1363,7 @@ usort($matches, function($a, $b) {
                 
                 document.getElementById('pathway-title').textContent = data.title;
                 document.getElementById('pathway-salary').innerHTML = `<i class="fas fa-wallet text-indigo-500 mr-2 w-4"></i><strong>Salary:</strong> ${data.salary}`;
-                document.getElementById('pathway-demand').innerHTML = `<i class="fas fa-fire text-amber-500 mr-2 w-4"></i><strong>Demand:</strong> ${data.demand}`;
+                document.getElementById('pathway-demand').innerHTML = `<i class="fas fa-fire text-orange-500 mr-2 w-4"></i><strong>Demand:</strong> ${data.demand}`;
                 
                 const skillsContainer = document.getElementById('pathway-skills');
                 skillsContainer.innerHTML = '';

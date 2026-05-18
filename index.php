@@ -5,39 +5,86 @@ include 'includes/navbar.php';
 ?>
 
 <!-- Hero Section -->
-<div class="relative bg-white overflow-hidden">
-    <div class="max-w-7xl mx-auto">
-        <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20">
-            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                <div class="sm:text-center lg:text-left">
-                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                        <span class="block xl:inline">TechnoHacks Solutions</span>
-                        <span class="block text-primary">Job Matching Portal</span>
-                    </h1>
-                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                        Upload your resume and let our advanced AI match you with the best opportunities. Fast, accurate, and tailored for you.
-                    </p>
-                    <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                        <div class="rounded-md shadow">
-                            <a href="register.php?type=student" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-indigo-700 md:py-4 md:text-lg transition">
-                                Get Started
-                            </a>
-                        </div>
-                        <div class="mt-3 sm:mt-0 sm:ml-3">
-                            <a href="jobs.php" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg transition">
-                                Browse Jobs
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+<div class="relative bg-gradient-to-b from-[#F3F4F6] via-[#F8FAFC] to-white pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-gray-100/50">
+    <div class="absolute inset-0 z-0">
+        <!-- Floating circular glow accents -->
+        <div class="absolute top-10 left-10 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-indigo-100/30 rounded-full blur-3xl"></div>
     </div>
-    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-50/50 flex items-center justify-center p-8">
-        <div class="p-10 text-center bg-white rounded-2xl shadow-sm border border-gray-150 flex flex-col items-center max-w-sm">
-            <img src="assets/technohacks_logo.png" alt="TechnoHacks Solutions" class="h-44 object-contain mb-6 hover:scale-105 transition-transform duration-300">
-            <h2 class="text-2xl font-black text-gray-900 tracking-tight">TechnoHacks Solutions</h2>
-            <p class="text-xs text-primary font-bold uppercase tracking-wider mt-1 flex items-center gap-1.5"><i class="fas fa-robot animate-pulse"></i> AI Matching Engine Active</p>
+
+    <div class="max-w-5xl mx-auto text-center relative z-10 pt-8 sm:pt-12">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-slate-800 tracking-tight leading-none">
+            Search Your Dream Job
+        </h1>
+        <p class="mt-3 text-sm sm:text-base text-slate-500 font-bold uppercase tracking-wider">
+            Discover 5 lakh+ Job Opportunities
+        </p>
+ 
+        <!-- Premium Pill Search Bar Form -->
+        <form action="jobs.php" method="GET" class="bg-white shadow-xl shadow-slate-100/80 rounded-2xl md:rounded-full border border-gray-150 p-2.5 flex flex-col md:flex-row items-center gap-2 mt-8 max-w-4xl mx-auto transition-transform hover:scale-[1.01] duration-300">
+            <!-- Skills input -->
+            <div class="flex-1 w-full flex items-center gap-3 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150">
+                <i class="fas fa-search text-primary text-sm"></i>
+                <input type="text" name="q" class="w-full text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Skills / Roles">
+            </div>
+
+            <!-- Experience dropdown -->
+            <div class="w-full md:w-56 flex items-center gap-3 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150 relative">
+                <i class="fas fa-briefcase text-primary text-sm"></i>
+                <select name="experience" class="w-full text-xs sm:text-sm font-bold text-slate-800 bg-transparent outline-none border-none cursor-pointer appearance-none pr-8">
+                    <option value="">Select Experience</option>
+                    <option value="0">Freshers (0 Yrs)</option>
+                    <option value="1">1-2 Years</option>
+                    <option value="3">3-5 Years</option>
+                    <option value="5">5+ Years</option>
+                </select>
+                <i class="fas fa-chevron-down text-slate-400 text-[10px] absolute right-5 pointer-events-none"></i>
+            </div>
+
+            <!-- Location input -->
+            <div class="flex-1 w-full flex items-center gap-3 px-4 py-2">
+                <i class="fas fa-map-marker-alt text-primary text-sm"></i>
+                <input type="text" name="location" class="w-full text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Location">
+            </div>
+
+            <!-- Search Button -->
+            <button type="submit" class="w-full md:w-auto bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm px-10 py-4 rounded-xl md:rounded-full transition duration-150 shadow-md shadow-primary/20">
+                Search
+            </button>
+        </form>
+
+        <!-- Live Walkin badge -->
+        <div class="mt-6 flex justify-center">
+            <a href="jobs.php" class="inline-flex items-center gap-2 bg-[#EEEDF8] hover:bg-indigo-100 border border-indigo-100/50 rounded-full px-5 py-2 text-xs font-bold text-indigo-700 shadow-sm transition">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+                Walkin drives near you - register now <i class="fas fa-arrow-right text-[9px] ml-1"></i>
+            </a>
+        </div>
+
+        <!-- Trusted logos -->
+        <div class="mt-14">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">TRUSTED BY TOP ENTERPRISES</p>
+            <div class="flex flex-wrap items-center justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition duration-300">
+                <span class="text-sm font-black text-gray-500 tracking-tight">Capgemini</span>
+                <span class="text-sm font-black text-gray-500 tracking-tight">genpact</span>
+                <span class="text-sm font-black text-gray-500 tracking-tight">ICICI Bank</span>
+                <span class="text-sm font-black text-gray-500 tracking-tight">kotak</span>
+                <span class="text-sm font-black text-gray-500 tracking-tight">Tech Mahindra</span>
+            </div>
+        </div>
+
+        <!-- Developer Illustration (using our stunning visual container) -->
+        <div class="mt-12 flex justify-center">
+            <div class="bg-white/80 backdrop-blur border border-indigo-100/40 rounded-3xl p-5 shadow-sm max-w-sm flex items-center gap-4 hover:scale-[1.02] transition-transform duration-300">
+                <img src="assets/technohacks_logo.png" alt="TechnoHacks Solutions" class="h-16 w-16 object-contain bg-slate-50 p-2 rounded-2xl">
+                <div class="text-left">
+                    <h4 class="text-sm font-black text-slate-800 leading-tight">TechnoHacks Solutions</h4>
+                    <p class="text-[10px] text-primary font-bold uppercase tracking-wider mt-0.5"><i class="fas fa-robot animate-pulse mr-0.5"></i> AI Matching Engine Active</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -262,7 +309,7 @@ include 'includes/navbar.php';
                             <i class="fas fa-wallet text-indigo-500 mr-2 w-5"></i> <strong>Salary:</strong> ₹6,00,000 - ₹12,00,000 / yr
                         </p>
                         <p id="pathway-demand" class="text-sm text-gray-600 flex items-center">
-                            <i class="fas fa-fire text-amber-500 mr-2 w-5"></i> <strong>Demand:</strong> Very High (15k+ openings)
+                            <i class="fas fa-fire text-orange-500 mr-2 w-5"></i> <strong>Demand:</strong> Very High (15k+ openings)
                         </p>
                     </div>
                 </div>
@@ -585,7 +632,7 @@ function selectPathway(track) {
     
     document.getElementById('pathway-title').textContent = data.title;
     document.getElementById('pathway-salary').innerHTML = `<i class="fas fa-wallet text-indigo-500 mr-2 w-5"></i><strong>Salary:</strong> ${data.salary}`;
-    document.getElementById('pathway-demand').innerHTML = `<i class="fas fa-fire text-amber-500 mr-2 w-5"></i><strong>Demand:</strong> ${data.demand}`;
+    document.getElementById('pathway-demand').innerHTML = `<i class="fas fa-fire text-orange-500 mr-2 w-5"></i><strong>Demand:</strong> ${data.demand}`;
     
     const skillsContainer = document.getElementById('pathway-skills');
     skillsContainer.innerHTML = '';

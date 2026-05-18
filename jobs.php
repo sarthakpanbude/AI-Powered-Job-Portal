@@ -32,24 +32,37 @@ $stmt->execute($params);
 $jobs = $stmt->fetchAll();
 
 ?>
+<!-- Shine.com Styled Search Banner -->
+<div class="relative bg-gradient-to-b from-[#F3F4F6] via-[#F8FAFC] to-white py-12 px-4 sm:px-6 lg:px-8 border-b border-gray-100/50 overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-10 left-10 w-60 h-60 bg-blue-200/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-5 right-5 w-80 h-80 bg-indigo-50/20 rounded-full blur-3xl"></div>
+    </div>
 
-<div class="bg-primary text-white py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-center mb-8">Find Your Next Great Opportunity</h1>
-        <form action="" method="GET" class="max-w-3xl mx-auto flex flex-col md:flex-row gap-4">
-            <div class="flex-1 relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-search text-gray-400"></i>
-                </div>
-                <input type="text" name="q" value="<?php echo htmlspecialchars($search); ?>" class="w-full pl-10 pr-3 py-3 rounded-md text-gray-900 focus:ring-2 focus:ring-indigo-300 outline-none" placeholder="Job title, keywords, or company">
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
+            Find Your Next Great Opportunity
+        </h1>
+        <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1.5">
+            Discover matching active job roles across top domains
+        </p>
+ 
+        <!-- Premium Pill Search Bar Form -->
+        <form action="" method="GET" class="bg-white shadow-xl shadow-slate-100/80 rounded-2xl md:rounded-full border border-gray-150 p-2 flex flex-col md:flex-row items-center gap-2 mt-6 max-w-4xl mx-auto">
+            <!-- Skills input -->
+            <div class="flex-1 w-full flex items-center gap-2.5 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150">
+                <i class="fas fa-search text-primary text-sm"></i>
+                <input type="text" name="q" value="<?php echo htmlspecialchars($search); ?>" class="w-full text-xs font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none animate-pulse-once" placeholder="Enter Skills / Roles / Keywords">
             </div>
-            <div class="flex-1 relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-map-marker-alt text-gray-400"></i>
-                </div>
-                <input type="text" name="location" value="<?php echo htmlspecialchars($location); ?>" class="w-full pl-10 pr-3 py-3 rounded-md text-gray-900 focus:ring-2 focus:ring-indigo-300 outline-none" placeholder="City, state, or remote">
+
+            <!-- Location input -->
+            <div class="flex-1 w-full flex items-center gap-2.5 px-4 py-2">
+                <i class="fas fa-map-marker-alt text-primary text-sm"></i>
+                <input type="text" name="location" value="<?php echo htmlspecialchars($location); ?>" class="w-full text-xs font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Location">
             </div>
-            <button type="submit" class="bg-indigo-900 hover:bg-indigo-800 text-white font-semibold py-3 px-8 rounded-md transition">
+
+            <!-- Search Button -->
+            <button type="submit" class="w-full md:w-auto bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs px-10 py-3.5 rounded-xl md:rounded-full transition shadow-sm shadow-primary/20">
                 Search
             </button>
         </form>
