@@ -21,6 +21,7 @@ $education = json_decode($student['education'] ?? '[]', true);
 $experience = json_decode($student['experience'] ?? '[]', true);
 $skills = json_decode($student['skills'] ?? '[]', true);
 $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","github":"","portfolio":""}', true);
+$summary = $student['summary'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $summary = $_POST['summary'] ?? '';
@@ -74,14 +75,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(count($experience_data) > 0) $score += 20;
     if(count($skills_data) >= 5) $score += 15;
     elseif(count($skills_data) > 0) $score += 10;
-    if(!empty($summary)) $score += 10;
+    if(!empty($summary)) $score += 15;
     
-    $stmt = $pdo->prepare("UPDATE students SET education = ?, experience = ?, skills = ?, portfolio_links = ?, resume_score = ? WHERE user_id = ?");
+    $link_count = 0;
+    foreach($portfolio_data as $l) {
+        if(!empty($l)) $link_count++;
+    }
+    $score += min(10, $link_count * 5);
+    $score = min(100, $score);
+    
+    $stmt = $pdo->prepare("UPDATE students SET education = ?, experience = ?, skills = ?, portfolio_links = ?, summary = ?, resume_score = ? WHERE user_id = ?");
     if($stmt->execute([
         json_encode($education_data),
         json_encode($experience_data),
         json_encode($skills_data),
         json_encode($portfolio_data),
+        $summary,
         $score,
         $user_id
     ])) {
@@ -106,6 +115,11 @@ $education = json_decode($student['education'] ?? '[]', true);
 $experience = json_decode($student['experience'] ?? '[]', true);
 $skills = json_decode($student['skills'] ?? '[]', true);
 $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","github":"","portfolio":""}', true);
+$summary = $student['summary'] ?? '';
+
+// Fetch active jobs for matching
+$stmt_jobs = $pdo->query("SELECT id, title, description, skills_required FROM jobs WHERE status = 'active' ORDER BY title ASC");
+$active_jobs = $stmt_jobs->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -192,6 +206,13 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
                     </div>
                 </div>
 
+                <!-- Professional Summary -->
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-3"><i class="far fa-user-circle mr-1"></i> Professional Summary</h4>
+                    <label class="block text-xs font-medium text-gray-500">Summary (Brief overview of your career & key achievements)</label>
+                    <textarea name="summary" placeholder="Provide a brief, impactful summary of your career accomplishments..." rows="3" class="mt-1 w-full border border-gray-300 rounded px-2.5 py-2 text-sm"><?php echo htmlspecialchars($summary); ?></textarea>
+                </div>
+
                 <!-- Skills -->
                 <div>
                     <h4 class="font-bold text-gray-700 mb-3"><i class="fas fa-tools mr-1"></i> Professional Skills</h4>
@@ -261,9 +282,22 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
             </form>
         </div>
 
-        <!-- Right Side: Live Dynamic Resume Preview -->
-        <div class="sticky top-24">
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 min-h-[700px] flex flex-col justify-between" id="resume-preview">
+        <!-- Right Side: Live Dynamic Resume Preview & ATS Score Analyzer -->
+        <div class="sticky top-24 space-y-4">
+            
+            <!-- Tabs Toggle Header -->
+            <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 flex gap-2">
+                <button type="button" onclick="switchRightTab('preview')" id="tab-btn-preview" class="flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 bg-primary text-white shadow-md shadow-primary/10">
+                    <i class="far fa-file-alt text-sm"></i> Resume Document
+                </button>
+                <button type="button" onclick="switchRightTab('ats')" id="tab-btn-ats" class="flex-1 py-3 px-4 rounded-xl text-xs font-black text-gray-500 hover:text-gray-800 transition-all flex items-center justify-center gap-2 hover:bg-gray-50">
+                    <i class="fas fa-robot text-sm animate-pulse"></i> Interactive ATS Checker
+                    <span class="bg-indigo-50 text-primary text-[10px] px-2 py-0.5 rounded-full font-extrabold border border-indigo-100" id="ats-badge-score"><?php echo $student['resume_score']; ?>%</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Live Dynamic Resume Preview -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 min-h-[700px] flex flex-col justify-between transition-all duration-300" id="resume-preview">
                 <div class="space-y-6">
                     <!-- Header -->
                     <div class="border-b pb-6 text-center sm:text-left">
@@ -288,6 +322,14 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
                             <?php endif; ?>
                         </div>
                     </div>
+
+                    <!-- Professional Summary preview -->
+                    <?php if(!empty($summary)): ?>
+                        <div>
+                            <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Professional Summary</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed font-medium"><?php echo nl2br(htmlspecialchars($summary)); ?></p>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Skills preview -->
                     <?php if(!empty($skills)): ?>
@@ -342,6 +384,98 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
                     Generated via TechnoHacks Job Portal Resume Builder.
                 </div>
             </div>
+
+            <!-- Tab 2: ATS Scanner & Optimizer Panel -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 min-h-[700px] flex flex-col justify-between transition-all duration-300 hidden" id="ats-scanner-panel">
+                <div class="space-y-6">
+                    <!-- Scanner Header -->
+                    <div class="border-b pb-4 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-black text-gray-800 flex items-center gap-1.5"><i class="fas fa-brain text-primary text-sm"></i> Real-time ATS Optimizer</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Test and align your resume keywords with specific job requirements</p>
+                        </div>
+                    </div>
+
+                    <!-- Progress Indicator & Score Card -->
+                    <div class="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border border-gray-100 relative overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-2xl"></div>
+                        <div class="absolute -left-10 -top-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-2xl"></div>
+
+                        <div class="relative w-36 h-36 flex items-center justify-center">
+                            <!-- SVG Circle Progress -->
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="72" cy="72" r="60" stroke="#E2E8F0" stroke-width="10" fill="transparent" />
+                                <circle cx="72" cy="72" r="60" stroke="url(#atsGradient)" stroke-width="10" fill="transparent"
+                                        stroke-dasharray="377" stroke-dashoffset="377" id="ats-progress-circle" class="transition-all duration-750 ease-out" />
+                                <defs>
+                                    <linearGradient id="atsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#4F46E5" />
+                                        <stop offset="100%" stop-color="#10B981" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute text-center">
+                                <span class="text-3xl font-black text-slate-800 tracking-tight" id="ats-score-text">0%</span>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">ATS Match</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="text-xs font-black px-3 py-1 rounded-full" id="ats-status-badge">Calculating...</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Job Description Input -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">Compare Against Job Role</label>
+                            <select id="target-job-select" onchange="handleJobSelectChange()" class="mt-1.5 w-full border border-gray-250 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 bg-white focus:ring-2 focus:ring-primary/10 outline-none">
+                                <option value="">-- Choose an Active Job Portal Vacancy --</option>
+                                <?php foreach($active_jobs as $j): ?>
+                                    <option value="<?php echo $j['id']; ?>"><?php echo htmlspecialchars($j['title']); ?></option>
+                                <?php endforeach; ?>
+                                <option value="custom">-- Compare Custom Job Description --</option>
+                            </select>
+                        </div>
+                        <div id="custom-jd-container" class="hidden">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">Paste Job Description</label>
+                            <textarea id="target-jd-textarea" placeholder="Paste the text of the job description here..." rows="4" class="mt-1.5 w-full border border-gray-250 rounded-xl px-3 py-2 text-xs text-gray-700 focus:ring-2 focus:ring-primary/10 outline-none"></textarea>
+                        </div>
+                        <button type="button" onclick="runRealtimeScan()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-black text-xs py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                            <i class="fas fa-search-dollar"></i> Scan & Analyze Match Score
+                        </button>
+                    </div>
+
+                    <!-- Keyword Scanner Report -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-emerald-50/30 border border-emerald-100 rounded-xl p-4">
+                            <h5 class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1"><i class="fas fa-check-circle text-emerald-600"></i> Matched Keywords</h5>
+                            <div class="flex flex-wrap gap-1" id="matched-keywords-container">
+                                <span class="text-[10px] text-gray-450 italic font-medium">Select a job & run scan...</span>
+                            </div>
+                        </div>
+                        <div class="bg-rose-50/30 border border-rose-100 rounded-xl p-4">
+                            <h5 class="text-[10px] font-bold text-rose-800 uppercase tracking-wider mb-2 flex items-center gap-1"><i class="fas fa-exclamation-triangle text-rose-500"></i> Missing Keywords</h5>
+                            <div class="flex flex-wrap gap-1" id="missing-keywords-container">
+                                <span class="text-[10px] text-gray-450 italic font-medium">Select a job & run scan...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendations List -->
+                    <div class="space-y-3">
+                        <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b pb-1">Completeness Suggestions</h5>
+                        <ul class="space-y-2 text-xs font-semibold text-gray-600" id="ats-suggestions-list">
+                            <!-- Dynamic checklist renders here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 text-center text-[10px] text-gray-400 flex items-center justify-center gap-1">
+                    <i class="fas fa-robot text-primary/70"></i> AI matcher dynamically runs scanning in client session.
+                </div>
+            </div>
+
+        </div>
             </div>
         </div>
     </main>
@@ -372,6 +506,207 @@ $portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","g
                 <textarea name="exp_desc[]" placeholder="Brief details about what you did..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"></textarea>
             `;
             container.appendChild(row);
+        }
+
+        function switchRightTab(tab) {
+            const btnPreview = document.getElementById('tab-btn-preview');
+            const btnAts = document.getElementById('tab-btn-ats');
+            const panelPreview = document.getElementById('resume-preview');
+            const panelAts = document.getElementById('ats-scanner-panel');
+            
+            if (tab === 'preview') {
+                btnPreview.className = "flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 bg-primary text-white shadow-md shadow-primary/10";
+                btnAts.className = "flex-1 py-3 px-4 rounded-xl text-xs font-black text-gray-500 hover:text-gray-800 transition-all flex items-center justify-center gap-2 hover:bg-gray-50";
+                panelPreview.classList.remove('hidden');
+                panelAts.classList.add('hidden');
+            } else {
+                btnPreview.className = "flex-1 py-3 px-4 rounded-xl text-xs font-black text-gray-500 hover:text-gray-800 transition-all flex items-center justify-center gap-2 hover:bg-gray-50";
+                btnAts.className = "flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 bg-primary text-white shadow-md shadow-primary/10";
+                panelPreview.classList.add('hidden');
+                panelAts.classList.remove('hidden');
+                runRealtimeScan();
+            }
+        }
+
+        const activeJobs = <?php echo json_encode($active_jobs); ?>;
+
+        function handleJobSelectChange() {
+            const select = document.getElementById('target-job-select');
+            const customContainer = document.getElementById('custom-jd-container');
+            if (select.value === 'custom') {
+                customContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+                if (select.value) {
+                    const job = activeJobs.find(j => j.id == select.value);
+                    if (job) {
+                        document.getElementById('target-jd-textarea').value = (job.skills_required || '') + '\n' + (job.description || '');
+                    }
+                } else {
+                    document.getElementById('target-jd-textarea').value = '';
+                }
+            }
+        }
+
+        const STOPWORDS = new Set(['the', 'and', 'a', 'of', 'to', 'in', 'is', 'for', 'with', 'on', 'at', 'by', 'an', 'be', 'this', 'that', 'from', 'as', 'your', 'our', 'are', 'we', 'you', 'or', 'it', 'its', 'have', 'has', 'had', 'been', 'will', 'would', 'should', 'can', 'could', 'about', 'more', 'new', 'some', 'any', 'other', 'them', 'their', 'they', 'our', 'us', 'skills', 'experience', 'knowledge', 'ability', 'required', 'work', 'job', 'team', 'candidate', 'position', 'role', 'responsibilities', 'development', 'management', 'working', 'using', 'etc']);
+
+        const TECH_DICTIONARY = new Set([
+            'php', 'javascript', 'js', 'python', 'java', 'c++', 'c#', 'ruby', 'go', 'golang', 'rust', 'swift', 'kotlin', 'typescript', 'ts', 'sql', 'mysql', 'postgresql', 'sqlite', 'mongodb', 'redis', 'nosql', 'oracle', 'html', 'css', 'sass', 'less', 'tailwind', 'tailwindcss', 'bootstrap', 'react', 'reactjs', 'vue', 'vuejs', 'angular', 'angularjs', 'svelte', 'jquery', 'nextjs', 'nuxtjs', 'node', 'nodejs', 'express', 'expressjs', 'django', 'flask', 'laravel', 'symfony', 'spring', 'springboot', 'rails', 'asp', 'dotnet', 'git', 'github', 'gitlab', 'docker', 'kubernetes', 'aws', 'amazon', 'azure', 'gcp', 'google', 'cloud', 'linux', 'unix', 'windows', 'macos', 'android', 'ios', 'rest', 'restful', 'api', 'apis', 'graphql', 'soap', 'json', 'xml', 'ajax', 'npm', 'yarn', 'composer', 'webpack', 'vite', 'gulp', 'grunt', 'agile', 'scrum', 'kanban', 'jira', 'trello', 'ci', 'cd', 'jenkins', 'travis', 'circleci', 'testing', 'unit', 'integration', 'phpunit', 'jest', 'cypress', 'selenium', 'oop', 'mvc', 'solid', 'dry', 'design', 'patterns', 'security', 'oauth', 'jwt', 'ssl', 'encryption', 'algorithms', 'structures', 'data', 'analytics', 'seo', 'sem', 'marketing', 'devops', 'sysadmin', 'network', 'database', 'server', 'hosting', 'apache', 'nginx', 'iis', 'virtualization', 'ui', 'ux', 'figma', 'photoshop', 'illustrator', 'adobe', 'wordpress', 'shopify', 'joomla', 'drupal'
+        ]);
+
+        function extractKeywords(text) {
+            if (!text) return [];
+            const words = text.toLowerCase().match(/[a-z+#]+/g) || [];
+            const uniqueWords = new Set();
+            for (const w of words) {
+                if (w.length >= 2 && !STOPWORDS.has(w) && (TECH_DICTIONARY.has(w) || w.endsWith('js') || w.endsWith('css'))) {
+                    uniqueWords.add(w);
+                }
+            }
+            return Array.from(uniqueWords);
+        }
+
+        function runRealtimeScan() {
+            const summary = document.querySelector('textarea[name="summary"]').value.trim();
+            const skillsInput = document.querySelector('input[name="skills"]').value.trim();
+            const skills = skillsInput ? skillsInput.split(',').map(s => s.trim().toLowerCase()).filter(s => s.length > 0) : [];
+            
+            const expDescs = Array.from(document.querySelectorAll('textarea[name="exp_desc[]"]')).map(t => t.value.trim().toLowerCase()).join(' ');
+            const expTitles = Array.from(document.querySelectorAll('input[name="exp_title[]"]')).map(t => t.value.trim().toLowerCase()).join(' ');
+            const resumeText = (summary.toLowerCase() + ' ' + skills.join(' ') + ' ' + expDescs + ' ' + expTitles);
+            
+            let completenessScore = 40;
+            const eduRows = Array.from(document.querySelectorAll('input[name="degree[]"]')).filter(i => i.value.trim().length > 0).length;
+            const expRows = Array.from(document.querySelectorAll('input[name="exp_title[]"]')).filter(i => i.value.trim().length > 0).length;
+            
+            if (eduRows > 0) completenessScore += 15;
+            if (expRows > 0) completenessScore += 20;
+            if (skills.length >= 5) completenessScore += 15;
+            else if (skills.length > 0) completenessScore += 10;
+            if (summary.length > 0) completenessScore += 15;
+            
+            let linkCount = 0;
+            if (document.querySelector('input[name="linkedin"]').value.trim()) linkCount++;
+            if (document.querySelector('input[name="github"]').value.trim()) linkCount++;
+            if (document.querySelector('input[name="portfolio"]').value.trim()) linkCount++;
+            completenessScore += Math.min(10, linkCount * 5);
+            completenessScore = Math.min(100, completenessScore);
+            
+            const jdText = document.getElementById('target-jd-textarea').value.trim();
+            const jdKeywords = extractKeywords(jdText);
+            
+            let matchedKeywords = [];
+            let missingKeywords = [];
+            let matchScore = completenessScore;
+            
+            if (jdKeywords.length > 0) {
+                for (const kw of jdKeywords) {
+                    const regex = new RegExp('\\b' + escapeRegExp(kw) + '\\b', 'i');
+                    if (regex.test(resumeText) || skills.includes(kw)) {
+                        matchedKeywords.push(kw);
+                    } else {
+                        missingKeywords.push(kw);
+                    }
+                }
+                const keywordMatchRate = jdKeywords.length > 0 ? (matchedKeywords.length / jdKeywords.length) : 0;
+                matchScore = Math.round((completenessScore * 0.5) + ((keywordMatchRate * 100) * 0.5));
+            }
+            
+            const circle = document.getElementById('ats-progress-circle');
+            const scoreText = document.getElementById('ats-score-text');
+            const badge = document.getElementById('ats-status-badge');
+            const badgeBadge = document.getElementById('ats-badge-score');
+            
+            scoreText.textContent = matchScore + '%';
+            if (badgeBadge) badgeBadge.textContent = matchScore + '%';
+            
+            const circumference = 377;
+            const offset = circumference - (matchScore / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            
+            if (matchScore >= 85) {
+                badge.className = "text-xs font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+                badge.innerHTML = "<i class='fas fa-sparkles mr-1'></i> Excellent Match";
+            } else if (matchScore >= 70) {
+                badge.className = "text-xs font-black px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200";
+                badge.innerHTML = "<i class='fas fa-thumbs-up mr-1'></i> Good Match";
+            } else if (matchScore >= 50) {
+                badge.className = "text-xs font-black px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200";
+                badge.innerHTML = "<i class='fas fa-exclamation-circle mr-1'></i> Moderate Match";
+            } else {
+                badge.className = "text-xs font-black px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200";
+                badge.innerHTML = "<i class='fas fa-times-circle mr-1'></i> Weak Match";
+            }
+            
+            const matchedContainer = document.getElementById('matched-keywords-container');
+            const missingContainer = document.getElementById('missing-keywords-container');
+            
+            if (matchedKeywords.length > 0) {
+                matchedContainer.innerHTML = matchedKeywords.map(kw => `
+                    <span class="bg-emerald-100 text-emerald-800 text-[9px] px-2 py-0.5 rounded-full font-bold border border-emerald-200">${kw}</span>
+                `).join('');
+            } else {
+                matchedContainer.innerHTML = `<span class="text-[10px] text-gray-400 italic">No matches yet</span>`;
+            }
+            
+            if (missingKeywords.length > 0) {
+                missingContainer.innerHTML = missingKeywords.slice(0, 15).map(kw => `
+                    <span class="bg-rose-100 text-rose-800 text-[9px] px-2 py-0.5 rounded-full font-bold border border-rose-200 cursor-pointer hover:bg-rose-200 transition" onclick="addSkillFromScan('${kw}')" title="Click to add to skills">${kw} +</span>
+                `).join('');
+            } else {
+                missingContainer.innerHTML = `<span class="text-[10px] text-gray-400 italic">No missing keywords!</span>`;
+            }
+            
+            const suggestionsList = document.getElementById('ats-suggestions-list');
+            let suggestionsHTML = '';
+            
+            suggestionsHTML += renderChecklistItem(summary.length > 0, "Professional Summary", "Write a summary of your career focus.");
+            suggestionsHTML += renderChecklistItem(skills.length >= 5, "Key Skills (5+)", "Add at least 5 tech skills separated by commas.");
+            suggestionsHTML += renderChecklistItem(expRows > 0, "Work Experience", "Include one or more past job experience details.");
+            suggestionsHTML += renderChecklistItem(eduRows > 0, "Education Records", "List your degrees and university.");
+            suggestionsHTML += renderChecklistItem(linkCount >= 2, "Portfolio & Links", "Add LinkedIn, GitHub or portfolio web links.");
+            
+            if (missingKeywords.length > 0) {
+                suggestionsHTML += `
+                    <li class="pt-2 border-t border-dashed mt-2">
+                        <p class="text-[10px] font-bold text-indigo-600 uppercase mb-1">Keywords Optimization Tips</p>
+                        <p class="text-[11px] text-gray-500 font-medium">Your resume is missing keywords like <span class="font-bold text-gray-700">${missingKeywords.slice(0, 3).join(', ')}</span>. Click them to add them to your Skills instantly.</p>
+                    </li>
+                `;
+            }
+            suggestionsList.innerHTML = suggestionsHTML;
+        }
+
+        function renderChecklistItem(isDone, title, desc) {
+            const icon = isDone ? 'fa-check-circle text-emerald-500' : 'fa-times-circle text-gray-300';
+            return `
+                <li class="flex items-start gap-2.5">
+                    <i class="fas ${icon} text-sm mt-0.5"></i>
+                    <div>
+                        <p class="text-[11px] font-bold ${isDone ? 'text-gray-800 line-through opacity-70' : 'text-slate-800'}">${title}</p>
+                        ${isDone ? '' : `<p class="text-[10px] text-gray-400 font-medium">${desc}</p>`}
+                    </div>
+                </li>
+            `;
+        }
+
+        function addSkillFromScan(skill) {
+            const input = document.querySelector('input[name="skills"]');
+            let currentVal = input.value.trim();
+            if (currentVal) {
+                const currentSkills = currentVal.split(',').map(s => s.trim().toLowerCase());
+                if (!currentSkills.includes(skill.toLowerCase())) {
+                    input.value = currentVal + ', ' + skill;
+                }
+            } else {
+                input.value = skill;
+            }
+            runRealtimeScan();
+            alert(`Added "${skill}" to skills! Save details to persist.`);
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
     </script>
 </body>

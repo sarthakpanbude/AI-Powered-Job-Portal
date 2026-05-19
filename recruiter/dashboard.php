@@ -37,6 +37,57 @@ $stmt = $pdo->prepare("SELECT a.id as application_id, a.status as application_st
                        LIMIT 5");
 $stmt->execute([$recruiter['id']]);
 $recent_applicants = $stmt->fetchAll();
+
+// Dynamic Application Pipeline Chart Data (Last 6 Months)
+$months = [];
+for ($i = 5; $i >= 0; $i--) {
+    $month_key = date('Y-m', strtotime("-$i months"));
+    $months[$month_key] = [
+        'label' => date('M', strtotime("-$i months")),
+        'apps' => 0,
+        'interviews' => 0
+    ];
+}
+
+// Fetch applications grouped by month
+$stmt = $pdo->prepare("SELECT DATE_FORMAT(a.applied_at, '%Y-%m') as month_key, COUNT(a.id) as count
+                       FROM applications a
+                       JOIN jobs j ON a.job_id = j.id
+                       WHERE j.recruiter_id = ?
+                         AND a.applied_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                       GROUP BY DATE_FORMAT(a.applied_at, '%Y-%m')");
+$stmt->execute([$recruiter['id']]);
+$apps_by_month = $stmt->fetchAll();
+foreach ($apps_by_month as $row) {
+    if (isset($months[$row['month_key']])) {
+        $months[$row['month_key']]['apps'] = (int)$row['count'];
+    }
+}
+
+// Fetch interviews grouped by month
+$stmt = $pdo->prepare("SELECT DATE_FORMAT(i.created_at, '%Y-%m') as month_key, COUNT(i.id) as count
+                       FROM interviews i
+                       JOIN applications a ON i.application_id = a.id
+                       JOIN jobs j ON a.job_id = j.id
+                       WHERE j.recruiter_id = ?
+                         AND i.created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                       GROUP BY DATE_FORMAT(i.created_at, '%Y-%m')");
+$stmt->execute([$recruiter['id']]);
+$interviews_by_month = $stmt->fetchAll();
+foreach ($interviews_by_month as $row) {
+    if (isset($months[$row['month_key']])) {
+        $months[$row['month_key']]['interviews'] = (int)$row['count'];
+    }
+}
+
+$chart_labels = [];
+$chart_apps = [];
+$chart_interviews = [];
+foreach ($months as $key => $val) {
+    $chart_labels[] = $val['label'];
+    $chart_apps[] = $val['apps'];
+    $chart_interviews[] = $val['interviews'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,22 +143,22 @@ $recent_applicants = $stmt->fetchAll();
 
         <!-- Recruiter Profile Quick View -->
         <div class="p-6 border-b border-slate-800">
-            <div class="flex items-center space-x-3.5 bg-slate-800/40 p-3 rounded-xl border border-slate-700/30">
+            <div class="flex items-center space-x-3.5 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
                 <?php 
                 $logo_path = '';
                 if (!empty($recruiter['company_logo']) && $recruiter['company_logo'] !== 'default_company.png' && file_exists('../uploads/logos/' . $recruiter['company_logo'])) {
                     $logo_path = '../uploads/logos/' . $recruiter['company_logo'];
                 }
                 if ($logo_path): ?>
-                    <img src="<?php echo htmlspecialchars($logo_path); ?>" alt="Company Logo" class="w-12 h-12 rounded-xl border border-slate-750 object-cover bg-white shadow-md">
+                    <img src="<?php echo htmlspecialchars($logo_path); ?>" alt="Company Logo" class="w-12 h-12 rounded-xl border border-slate-200 object-cover bg-white shadow-sm">
                 <?php else: ?>
-                    <div class="w-12 h-12 rounded-xl border border-slate-750 bg-slate-800 flex items-center justify-center text-primary text-xl">
+                    <div class="w-12 h-12 rounded-xl border border-slate-200 bg-slate-100 flex items-center justify-center text-primary text-xl shadow-sm">
                         <i class="fas fa-building"></i>
                     </div>
                 <?php endif; ?>
                 <div class="flex-1 min-w-0">
-                    <p class="font-bold text-white text-sm truncate"><?php echo htmlspecialchars($recruiter['company_name']); ?></p>
-                    <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider flex items-center gap-1 mt-0.5"><i class="fas fa-briefcase text-primary"></i> Partner</p>
+                    <p class="font-bold text-slate-800 text-sm truncate"><?php echo htmlspecialchars($recruiter['company_name']); ?></p>
+                    <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1 mt-0.5"><i class="fas fa-briefcase text-primary"></i> Partner</p>
                 </div>
             </div>
         </div>
@@ -345,18 +396,18 @@ $recent_applicants = $stmt->fetchAll();
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    labels: <?php echo json_encode($chart_labels); ?>,
                     datasets: [
                         {
                             label: 'Applications Received',
-                            data: [42, 59, 85, 96, 110, 145],
+                            data: <?php echo json_encode($chart_apps); ?>,
                             backgroundColor: '#4F46E5',
                             borderRadius: 6,
                             borderWidth: 0
                         },
                         {
                             label: 'Interviews Scheduled',
-                            data: [15, 22, 35, 45, 52, 70],
+                            data: <?php echo json_encode($chart_interviews); ?>,
                             backgroundColor: '#10B981',
                             borderRadius: 6,
                             borderWidth: 0

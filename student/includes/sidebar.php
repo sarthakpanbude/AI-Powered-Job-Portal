@@ -26,30 +26,53 @@ if (!isset($active_page)) {
 
     <!-- Student Profile Quick View -->
     <div class="p-6 border-b border-slate-800">
-        <div class="flex items-center space-x-3.5 bg-slate-800/40 p-3 rounded-xl border border-slate-700/30">
+        <div class="flex items-center space-x-3.5 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
             <div class="relative">
-                <img src="../assets/<?php echo $student['profile_pic']; ?>" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($student['first_name'].' '.$student['last_name']); ?>&background=4F46E5&color=fff'" class="w-12 h-12 rounded-xl object-cover border border-slate-700 shadow-md">
-                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-darkbg rounded-full animate-pulse"></span>
+                <img src="../assets/<?php echo $student['profile_pic']; ?>" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($student['first_name'].' '.$student['last_name']); ?>&background=4F46E5&color=fff'" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-sm">
+                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full animate-pulse"></span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-bold text-white text-sm truncate"><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></p>
-                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider flex items-center gap-1 mt-0.5"><i class="fas fa-graduation-cap text-primary"></i> Candidate</p>
+                <p class="font-bold text-slate-800 text-sm truncate"><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></p>
+                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1 mt-0.5"><i class="fas fa-graduation-cap text-primary"></i> Candidate</p>
             </div>
         </div>
     </div>
     
     <!-- Navigation Links -->
-    <div class="flex-1 py-6 px-4 overflow-y-auto space-y-1">
-        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-3">Core Portal</p>
-        <nav class="space-y-1.5">
-            <a href="dashboard.php" class="<?php echo $active_page === 'dashboard.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-3 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-home w-5 text-base"></i> Dashboard</a>
-            <a href="profile.php" class="<?php echo $active_page === 'profile.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-3 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-user w-5 text-base"></i> Edit Profile</a>
-            <a href="resume.php" class="<?php echo $active_page === 'resume.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-3 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-file-invoice w-5 text-base"></i> Resume Builder</a>
-            <a href="../jobs.php" class="text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fas fa-search w-5 text-base"></i> Search Jobs</a>
-            <a href="applications.php" class="<?php echo $active_page === 'applications.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-3 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-briefcase w-5 text-base"></i> My Applications</a>
-            <a href="ai_recommendations.php" class="<?php echo $active_page === 'ai_recommendations.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-3 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-brain w-5 text-base"></i> AI Matches</a>
-            <a href="referrals.php" class="<?php echo $active_page === 'referrals.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-3 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-3 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-users w-5 text-base"></i> Refer & Earn</a>
-        </nav>
+    <div class="flex-1 py-6 px-4 overflow-y-auto space-y-6">
+        <!-- Group 1: Core Portal -->
+        <div>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-2">Core Portal</p>
+            <nav class="space-y-1">
+                <a href="dashboard.php" class="<?php echo $active_page === 'dashboard.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-home w-5 text-base"></i> Dashboard</a>
+                <a href="profile.php" class="<?php echo $active_page === 'profile.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-user w-5 text-base"></i> Edit Profile</a>
+                <a href="resume.php" class="<?php echo $active_page === 'resume.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-file-invoice w-5 text-base"></i> Resume Builder</a>
+                <a href="../jobs.php" class="text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200"><i class="fas fa-search w-5 text-base"></i> Search Jobs</a>
+                <a href="applications.php" class="<?php echo $active_page === 'applications.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-briefcase w-5 text-base"></i> My Applications</a>
+                <a href="ai_recommendations.php" class="<?php echo $active_page === 'ai_recommendations.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-brain w-5 text-base"></i> AI Matches</a>
+            </nav>
+        </div>
+
+        <!-- Group 2: Professional Growth -->
+        <div>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-2">Professional Growth</p>
+            <nav class="space-y-1">
+                <a href="interview_prep.php" class="<?php echo $active_page === 'interview_prep.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-user-tie w-5 text-base"></i> Mock Interviews</a>
+                <a href="assessments.php" class="<?php echo $active_page === 'assessments.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-laptop-code w-5 text-base"></i> Skill Tests</a>
+                <a href="career_roadmap.php" class="<?php echo $active_page === 'career_roadmap.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-map-signs w-5 text-base"></i> Career Roadmaps</a>
+            </nav>
+        </div>
+
+        <!-- Group 3: Activity & Perks -->
+        <div>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-2">Activity & Perks</p>
+            <nav class="space-y-1">
+                <a href="saved_jobs.php" class="<?php echo $active_page === 'saved_jobs.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-bookmark w-5 text-base"></i> Saved Jobs</a>
+                <a href="analytics.php" class="<?php echo $active_page === 'analytics.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-chart-line w-5 text-base"></i> Profile Analytics</a>
+                <a href="events.php" class="<?php echo $active_page === 'events.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-calendar-alt w-5 text-base"></i> Virtual Events</a>
+                <a href="referrals.php" class="<?php echo $active_page === 'referrals.php' ? 'bg-gradient-to-r from-primary to-indigo-600 text-white block px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white block px-4 py-2.5 rounded-xl text-sm font-medium transition duration-200'; ?>"><i class="fas fa-users w-5 text-base"></i> Refer & Earn</a>
+            </nav>
+        </div>
     </div>
 
     <!-- Footer / Logout -->
