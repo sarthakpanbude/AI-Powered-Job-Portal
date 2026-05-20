@@ -4,141 +4,217 @@ include 'includes/header.php';
 include 'includes/navbar.php'; 
 ?>
 
-<!-- Hero Section -->
-<div class="relative bg-gradient-to-b from-[#F3F4F6] via-[#F8FAFC] to-white pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-gray-100/50">
+<<!-- Hero Section -->
+<div class="relative bg-gradient-to-b from-[#F3F4F6] via-[#F8FAFC] to-white pt-16 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-gray-100/50 bg-grid">
     <div class="absolute inset-0 z-0">
         <!-- Floating circular glow accents -->
-        <div class="absolute top-10 left-10 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 right-10 w-96 h-96 bg-indigo-100/30 rounded-full blur-3xl"></div>
+        <div class="absolute top-10 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-[500px] h-[500px] bg-indigo-200/20 rounded-full blur-3xl"></div>
     </div>
 
-    <div class="max-w-5xl mx-auto text-center relative z-10 pt-8 sm:pt-12">
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-slate-800 tracking-tight leading-none">
-            Search Your Dream Job
-        </h1>
-        <p class="mt-3 text-sm sm:text-base text-slate-500 font-bold uppercase tracking-wider">
-            Discover 5 lakh+ Job Opportunities
-        </p>
- 
-        <!-- Premium Pill Search Bar Form -->
-        <form action="jobs.php" method="GET" class="bg-white shadow-xl shadow-slate-100/80 rounded-2xl md:rounded-full border border-gray-150 p-2.5 flex flex-col md:flex-row items-center gap-2 mt-8 max-w-4xl mx-auto transition-transform hover:scale-[1.01] duration-300">
-            <!-- Skills input -->
-            <div class="flex-1 w-full flex items-center gap-3 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150">
-                <i class="fas fa-search text-primary text-sm"></i>
-                <input type="text" name="q" class="w-full text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Skills / Roles">
-            </div>
-
-            <!-- Experience dropdown -->
-            <div class="w-full md:w-56 flex items-center gap-3 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150 relative">
-                <i class="fas fa-briefcase text-primary text-sm"></i>
-                <select name="experience" class="w-full text-xs sm:text-sm font-bold text-slate-800 bg-transparent outline-none border-none cursor-pointer appearance-none pr-8">
-                    <option value="">Select Experience</option>
-                    <option value="0">Freshers (0 Yrs)</option>
-                    <option value="1">1-2 Years</option>
-                    <option value="3">3-5 Years</option>
-                    <option value="5">5+ Years</option>
-                </select>
-                <i class="fas fa-chevron-down text-slate-400 text-[10px] absolute right-5 pointer-events-none"></i>
-            </div>
-
-            <!-- Location input -->
-            <div class="flex-1 w-full flex items-center gap-3 px-4 py-2">
-                <i class="fas fa-map-marker-alt text-primary text-sm"></i>
-                <input type="text" name="location" class="w-full text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Location">
-            </div>
-
-            <!-- Search Button -->
-            <button type="submit" class="w-full md:w-auto bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm px-10 py-4 rounded-xl md:rounded-full transition duration-150 shadow-md shadow-primary/20">
-                Search
-            </button>
-        </form>
-
-        <!-- Live Walkin badge -->
-        <div class="mt-6 flex justify-center">
-            <a href="jobs.php" class="inline-flex items-center gap-2 bg-[#EEEDF8] hover:bg-indigo-100 border border-indigo-100/50 rounded-full px-5 py-2 text-xs font-bold text-indigo-700 shadow-sm transition">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+    <div class="max-w-7xl mx-auto relative z-10 pt-8 sm:pt-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Left Side: Content & Search -->
+            <div class="lg:col-span-7 text-left space-y-6">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
+                    <i class="fas fa-circle text-[8px] animate-pulse text-emerald-500"></i> Next-Gen AI Matching Engine Active
                 </span>
-                Walkin drives near you - register now <i class="fas fa-arrow-right text-[9px] ml-1"></i>
-            </a>
-        </div>
+                
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-slate-800 tracking-tight leading-none">
+                    Discover Your Next <br>
+                    <span class="bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">Landmark Career Move</span>
+                </h1>
+                
+                <p class="text-sm sm:text-base text-slate-500 font-medium leading-relaxed max-w-xl">
+                    Skip the tedious applications. Our advanced AI algorithm automatically matches your validated skill profile against 5 Lakh+ active premium vacancies.
+                </p>
 
-        <!-- Trusted logos -->
-        <div class="mt-14">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">TRUSTED BY TOP ENTERPRISES</p>
-            <div class="flex flex-wrap items-center justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition duration-300">
-                <span class="text-sm font-black text-gray-500 tracking-tight">Capgemini</span>
-                <span class="text-sm font-black text-gray-500 tracking-tight">genpact</span>
-                <span class="text-sm font-black text-gray-500 tracking-tight">ICICI Bank</span>
-                <span class="text-sm font-black text-gray-500 tracking-tight">kotak</span>
-                <span class="text-sm font-black text-gray-500 tracking-tight">Tech Mahindra</span>
+                <!-- Premium Pill Search Bar Form -->
+                <form action="jobs.php" method="GET" class="bg-white shadow-xl shadow-slate-200/50 rounded-2xl md:rounded-full border border-slate-100 p-2.5 flex flex-col md:flex-row items-center gap-2 mt-4 max-w-2xl transition-all hover:shadow-2xl duration-300">
+                    <!-- Skills input -->
+                    <div class="flex-1 w-full flex items-center gap-3 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-100">
+                        <i class="fas fa-search text-primary text-sm"></i>
+                        <input type="text" name="q" class="w-full text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Skills / Roles">
+                    </div>
+
+                    <!-- Location input -->
+                    <div class="flex-1 w-full flex items-center gap-3 px-4 py-2">
+                        <i class="fas fa-map-marker-alt text-primary text-sm"></i>
+                        <input type="text" name="location" class="w-full text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Location">
+                    </div>
+
+                    <!-- Search Button -->
+                    <button type="submit" class="w-full md:w-auto bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm px-8 py-3.5 rounded-xl md:rounded-full transition duration-150 shadow-md shadow-primary/20">
+                        Search Jobs
+                    </button>
+                </form>
+
+                <!-- Live Walkin badge -->
+                <div class="flex">
+                    <a href="jobs.php" class="inline-flex items-center gap-2 bg-indigo-50/50 hover:bg-indigo-150 border border-indigo-100/50 rounded-full px-4 py-1.5 text-xs font-bold text-indigo-700 transition">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        Walkin drives near you - register now <i class="fas fa-arrow-right text-[9px] ml-1"></i>
+                    </a>
+                </div>
             </div>
+
+            <!-- Right Side: Luxury Interactive Matching Demo Widget -->
+            <div class="lg:col-span-5 relative flex justify-center items-center">
+                
+                <!-- Matching Widget Frame -->
+                <div class="w-full max-w-sm bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 relative z-10 animate-float-slow">
+                    
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b border-gray-50 pb-4 mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                        </div>
+                        <span class="text-[9px] bg-primary/10 text-primary font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full"><i class="fas fa-shield-alt mr-0.5"></i> Verifiable Profile</span>
+                    </div>
+
+                    <!-- Candidate QuickView -->
+                    <div class="flex items-center gap-3.5 mb-5">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white text-base font-extrabold shadow-md shadow-primary/20">JD</div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-gray-800 text-sm">John Doe</h4>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Validated Full-Stack Candidate</p>
+                        </div>
+                    </div>
+
+                    <!-- Target Match Box -->
+                    <div class="bg-gray-50 rounded-2xl border border-gray-100 p-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100"><i class="fas fa-building text-xs text-primary"></i></div>
+                                <div>
+                                    <h5 class="font-extrabold text-gray-800 text-xs">Senior Web Architect</h5>
+                                    <p class="text-[9px] text-gray-400 font-semibold">Tech Innovations Inc.</p>
+                                </div>
+                            </div>
+                            <!-- ATS Mini Ring -->
+                            <div class="relative w-10 h-10">
+                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                    <circle class="text-gray-200" stroke-width="3" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/>
+                                    <circle class="text-emerald-500" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18" stroke-dasharray="100" stroke-dashoffset="8"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-[9px] font-black text-gray-800">92%</span>
+                            </div>
+                        </div>
+
+                        <!-- Skill Tags Match -->
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-100"><i class="fas fa-check mr-0.5 text-[8px]"></i> PHP/Laravel</span>
+                            <span class="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-100"><i class="fas fa-check mr-0.5 text-[8px]"></i> SQL index</span>
+                            <span class="text-[9px] bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded border border-red-100"><i class="fas fa-plus mr-0.5 text-[8px]"></i> Docker</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Decorator Badge 1 -->
+                <div class="absolute -right-6 top-10 bg-white rounded-2xl border border-gray-100 shadow-xl px-4 py-3 flex items-center gap-2.5 z-20 animate-float-delayed">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs"><i class="fas fa-wallet"></i></div>
+                    <div>
+                        <span class="text-[9px] text-gray-400 font-bold block">WALLET REWARD</span>
+                        <span class="text-xs font-black text-gray-800">+$10.00 Unlocked</span>
+                    </div>
+                </div>
+
+                <!-- Floating Decorator Badge 2 -->
+                <div class="absolute -left-8 bottom-6 bg-white rounded-2xl border border-gray-100 shadow-xl px-4 py-3 flex items-center gap-2.5 z-20 animate-float-slow">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-primary text-xs"><i class="fas fa-eye"></i></div>
+                    <div>
+                        <span class="text-[9px] text-gray-400 font-bold block">VISIBILITY SCORE</span>
+                        <span class="text-xs font-black text-gray-800">12 Profile Views</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Developer Illustration (using our stunning visual container) -->
-        <div class="mt-12 flex justify-center">
-            <div class="bg-white/80 backdrop-blur border border-indigo-100/40 rounded-3xl p-5 shadow-sm max-w-sm flex items-center gap-4 hover:scale-[1.02] transition-transform duration-300">
-                <img src="assets/technohacks_logo.png" alt="TechnoHacks Solutions" class="h-16 w-16 object-contain bg-slate-50 p-2 rounded-2xl">
-                <div class="text-left">
-                    <h4 class="text-sm font-black text-slate-800 leading-tight">TechnoHacks Solutions</h4>
-                    <p class="text-[10px] text-primary font-bold uppercase tracking-wider mt-0.5"><i class="fas fa-robot animate-pulse mr-0.5"></i> AI Matching Engine Active</p>
+        <!-- Trusted logos styled with Luxury Cards -->
+        <div class="mt-20 border-t border-gray-150/50 pt-12 text-center space-y-6">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">TRUSTED BY INDUSTRY LEADERS</p>
+            <div class="flex flex-wrap items-center justify-center gap-6">
+                <!-- Capgemini -->
+                <div class="bg-white/80 border border-gray-100 shadow-sm px-5 py-3.5 rounded-2xl flex items-center gap-2 hover:shadow hover:border-indigo-200 transition duration-300">
+                    <div class="w-5 h-5 bg-blue-600 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"><i class="fas fa-code-branch"></i></div>
+                    <span class="text-xs font-black text-slate-800 tracking-tight">Capgemini</span>
+                </div>
+                <!-- Genpact -->
+                <div class="bg-white/80 border border-gray-100 shadow-sm px-5 py-3.5 rounded-2xl flex items-center gap-2 hover:shadow hover:border-indigo-200 transition duration-300">
+                    <div class="w-5 h-5 bg-red-500 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"><i class="fas fa-cog animate-spin-slow"></i></div>
+                    <span class="text-xs font-black text-slate-800 tracking-tight">genpact</span>
+                </div>
+                <!-- ICICI Bank -->
+                <div class="bg-white/80 border border-gray-100 shadow-sm px-5 py-3.5 rounded-2xl flex items-center gap-2 hover:shadow hover:border-indigo-200 transition duration-300">
+                    <div class="w-5 h-5 bg-amber-500 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"><i class="fas fa-university"></i></div>
+                    <span class="text-xs font-black text-slate-800 tracking-tight">ICICI Bank</span>
+                </div>
+                <!-- Kotak -->
+                <div class="bg-white/80 border border-gray-100 shadow-sm px-5 py-3.5 rounded-2xl flex items-center gap-2 hover:shadow hover:border-indigo-200 transition duration-300">
+                    <div class="w-5 h-5 bg-red-600 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"><i class="fas fa-landmark"></i></div>
+                    <span class="text-xs font-black text-slate-800 tracking-tight">kotak</span>
+                </div>
+                <!-- Tech Mahindra -->
+                <div class="bg-white/80 border border-gray-100 shadow-sm px-5 py-3.5 rounded-2xl flex items-center gap-2 hover:shadow hover:border-indigo-200 transition duration-300">
+                    <div class="w-5 h-5 bg-slate-900 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"><i class="fas fa-microchip"></i></div>
+                    <span class="text-xs font-black text-slate-800 tracking-tight">Tech Mahindra</span>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 <!-- Features Section -->
-<div class="py-12 bg-gray-50">
+<div class="py-20 bg-gray-50 border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center">
-            <h2 class="text-base text-primary font-semibold tracking-wide uppercase">Features</h2>
-            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                A better way to hire and get hired
-            </p>
+        <div class="lg:text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-primary border border-indigo-100">
+                <i class="fas fa-cubes"></i> Platform Capabilities
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 leading-tight">
+                A better way to build your team and secure your dream job
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Explore how our state-of-the-art tools accelerate recruitment workflows for candidates and recruiters alike.</p>
         </div>
 
-        <div class="mt-10">
-            <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-                
-                <div class="relative p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <dt>
-                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
-                            <i class="fas fa-file-alt text-xl"></i>
-                        </div>
-                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">AI Resume Analyzer</p>
-                    </dt>
-                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                        Get instant feedback on your resume. Our AI scores your profile and suggests improvements to beat ATS systems.
-                    </dd>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="group bg-white p-8 rounded-3xl border border-gray-150 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-indigo-500 text-white flex items-center justify-center text-lg mb-6 shadow-md shadow-primary/20 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-file-alt"></i>
                 </div>
+                <h3 class="text-base font-extrabold text-slate-800 mb-2">AI Resume Analyzer</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Get instant feedback on your resume. Our AI scores your profile and suggests improvements to beat ATS systems.</p>
+            </div>
 
-                <div class="relative p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <dt>
-                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
-                            <i class="fas fa-bullseye text-xl"></i>
-                        </div>
-                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Smart Job Matching</p>
-                    </dt>
-                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                        Stop searching manually. We analyze your skills and automatically recommend the jobs where you are most likely to succeed.
-                    </dd>
+            <!-- Card 2 -->
+            <div class="group bg-white p-8 rounded-3xl border border-gray-150 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center text-lg mb-6 shadow-md shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-bullseye"></i>
                 </div>
+                <h3 class="text-base font-extrabold text-slate-800 mb-2">Smart Job Matching</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Stop searching manually. We analyze your skills and automatically recommend the jobs where you are most likely to succeed.</p>
+            </div>
 
-                <div class="relative p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <dt>
-                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
-                            <i class="fas fa-chart-line text-xl"></i>
-                        </div>
-                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Skill Gap Analysis</p>
-                    </dt>
-                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                        Find out what skills you are missing for your dream job and get recommendations on courses and certifications.
-                    </dd>
+            <!-- Card 3 -->
+            <div class="group bg-white p-8 rounded-3xl border border-gray-150 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-lg mb-6 shadow-md shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-chart-line"></i>
                 </div>
-
-            </dl>
+                <h3 class="text-base font-extrabold text-slate-800 mb-2">Skill Gap Analysis</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Find out what skills you are missing for your dream job and get recommendations on courses and certifications.</p>
+            </div>
         </div>
     </div>
 </div>

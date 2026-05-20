@@ -166,66 +166,69 @@ usort($matches, function($a, $b) {
         <!-- Main Dashboard Viewport -->
         <div class="p-8 space-y-8 flex-1">
             
-            <!-- Shine.com Styled Premium Search Banner -->
-            <div class="bg-gradient-to-br from-[#F3F4F6] via-[#F8FAFC] to-[#EEF2F6] rounded-3xl border border-blue-100 p-8 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-80 h-80 bg-blue-200/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
-                
-                <div class="relative z-10 text-center max-w-4xl mx-auto">
-                    <h3 class="text-3xl font-black text-slate-800 tracking-tight">Search Your Dream Job</h3>
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1.5">Discover 5 lakh+ Job Opportunities</p>
+            <!-- AI Real-Time Job Calibration Matcher (Hero Section) -->
+            <div class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 rounded-[2rem] border border-indigo-500/20 p-8 text-white relative overflow-hidden shadow-[0_20px_50px_rgba(79,70,229,0.15)]">
+                <!-- Decorative luxury background glows -->
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/25 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent pointer-events-none"></div>
 
-                    <!-- Pill Search Bar Form -->
-                    <form action="../jobs.php" method="GET" class="bg-white premium-shadow rounded-2xl md:rounded-full border border-gray-150 p-2 flex flex-col md:flex-row items-center gap-2 mt-6 max-w-3xl mx-auto">
-                        <!-- Skills input -->
-                        <div class="flex-1 w-full flex items-center gap-2.5 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150">
-                            <i class="fas fa-search text-primary text-sm"></i>
-                            <input type="text" name="q" class="w-full text-xs font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Skills / Roles">
-                        </div>
-
-                        <!-- Experience dropdown -->
-                        <div class="w-full md:w-48 flex items-center gap-2.5 px-4 py-2 border-b md:border-b-0 md:border-r border-gray-150 relative">
-                            <i class="fas fa-briefcase text-primary text-sm"></i>
-                            <select name="experience" class="w-full text-xs font-bold text-slate-800 bg-transparent outline-none border-none cursor-pointer appearance-none pr-6">
-                                <option value="">Select Experience</option>
-                                <option value="0">Freshers (0 Yrs)</option>
-                                <option value="1">1-2 Years</option>
-                                <option value="3">3-5 Years</option>
-                                <option value="5">5+ Years</option>
-                            </select>
-                            <i class="fas fa-chevron-down text-slate-400 text-[10px] absolute right-4 pointer-events-none"></i>
-                        </div>
-
-                        <!-- Location input -->
-                        <div class="flex-1 w-full flex items-center gap-2.5 px-4 py-2">
-                            <i class="fas fa-map-marker-alt text-primary text-sm"></i>
-                            <input type="text" name="location" class="w-full text-xs font-bold text-slate-800 placeholder-slate-400 bg-transparent outline-none border-none" placeholder="Enter Location">
-                        </div>
-
-                        <!-- Search Button -->
-                        <button type="submit" class="w-full md:w-auto bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs px-8 py-3.5 rounded-xl md:rounded-full transition shadow-sm shadow-primary/20">
-                            Search
-                        </button>
-                    </form>
-
-                    <!-- Live walkin alert badge -->
-                    <div class="mt-5">
-                        <a href="../jobs.php" class="inline-flex items-center gap-2 bg-indigo-50/80 hover:bg-indigo-100/90 border border-indigo-100/50 rounded-full px-4 py-1.5 text-[10px] font-bold text-indigo-700 shadow-sm transition">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                            </span>
-                            Walkin drives near you - register now <i class="fas fa-arrow-right text-[8px] ml-0.5"></i>
-                        </a>
+                <div class="relative z-10 space-y-6 max-w-5xl mx-auto">
+                    <div class="text-center space-y-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-indigo-500/10 text-indigo-300 border border-indigo-500/25 mb-1 animate-pulse">
+                            <i class="fas fa-sparkles text-amber-400"></i> Interactive AI Engine
+                        </span>
+                        <h3 class="text-3xl font-black text-white tracking-tight leading-none">AI Real-Time Job Calibration Matcher</h3>
+                        <p class="text-[11px] text-indigo-200/60 max-w-xl mx-auto font-medium">Input your custom criteria parameters to match active opportunities inside the portal.</p>
                     </div>
 
-                    <!-- Trusted logos -->
-                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-3">TRUSTED BY TOP ENTERPRISES</p>
-                    <div class="flex flex-wrap items-center justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition duration-300">
-                        <span class="text-xs font-black text-gray-500 tracking-tight">Capgemini</span>
-                        <span class="text-xs font-black text-gray-500 tracking-tight">genpact</span>
-                        <span class="text-xs font-black text-gray-500 tracking-tight">ICICI Bank</span>
-                        <span class="text-xs font-black text-gray-500 tracking-tight">kotak</span>
-                        <span class="text-xs font-black text-gray-500 tracking-tight">Tech Mahindra</span>
+                    <!-- Input Form Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-indigo-200 uppercase tracking-widest mb-2"><i class="fas fa-magic mr-1 text-primary"></i> Skills Keywords</label>
+                            <input type="text" id="ai-skills" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-3 text-xs text-white placeholder-indigo-300/30 focus:bg-white/10 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition duration-300 font-semibold" placeholder="PHP, Javascript, SQL">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-indigo-200 uppercase tracking-widest mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary"></i> Target Location</label>
+                            <input type="text" id="ai-location" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-3 text-xs text-white placeholder-indigo-300/30 focus:bg-white/10 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition duration-300 font-semibold" placeholder="Enter Location">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-indigo-200 uppercase tracking-widest mb-2"><i class="fas fa-briefcase mr-1 text-primary"></i> Experience Tier</label>
+                            <select id="ai-experience" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-3 text-xs text-indigo-100 outline-none transition duration-300 font-semibold cursor-pointer focus:border-indigo-400">
+                                <option value="fresh">Freshers (0-1 yrs)</option>
+                                <option value="mid">Associate (2-4 yrs)</option>
+                                <option value="senior">Senior Developer (5+ yrs)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button onclick="triggerRealtimeAIMatcher()" class="w-full bg-gradient-to-r from-primary to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-extrabold text-xs py-3.5 rounded-xl transition duration-300 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-1.5">
+                                <i class="fas fa-microchip animate-spin-slow"></i> Scan & Calibrate
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Matches Loading / Output View -->
+                    <div id="ai-match-results" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                        <!-- Match Cards will load here dynamically via triggerRealtimeAIMatcher -->
+                    </div>
+                    
+                    <!-- Pre-match status info -->
+                    <div id="ai-match-placeholder" class="border border-dashed border-indigo-500/20 rounded-2xl p-6 text-center text-indigo-200/50 text-xs">
+                        <i class="fas fa-radar text-lg text-indigo-400 animate-pulse mb-1.5"></i>
+                        <p class="font-bold text-indigo-200">System Ready for Calibration</p>
+                        <p class="text-[10px] text-indigo-300/40">Adjust options above and click Scan to execute the query.</p>
+                    </div>
+
+                    <!-- Trusted corporate partners banner inside hero -->
+                    <div class="pt-4 border-t border-white/5">
+                        <p class="text-[9px] font-bold text-indigo-300/30 uppercase tracking-widest text-center mb-3">INTEGRATED CAREER PLACEMENT PARTNERS</p>
+                        <div class="flex flex-wrap items-center justify-center gap-8 opacity-40 grayscale hover:grayscale-0 transition duration-300">
+                            <span class="text-xs font-black text-indigo-200 tracking-tight">Capgemini</span>
+                            <span class="text-xs font-black text-indigo-200 tracking-tight">genpact</span>
+                            <span class="text-xs font-black text-indigo-200 tracking-tight">ICICI Bank</span>
+                            <span class="text-xs font-black text-indigo-200 tracking-tight">kotak</span>
+                            <span class="text-xs font-black text-indigo-200 tracking-tight">Tech Mahindra</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1409,6 +1412,82 @@ usort($matches, function($a, $b) {
                     });
                     grid.style.opacity = '1';
                 }, 150);
+            }
+
+            function triggerRealtimeAIMatcher() {
+                const skills = document.getElementById('ai-skills').value;
+                const location = document.getElementById('ai-location').value;
+                const experience = document.getElementById('ai-experience').value;
+                
+                const resultsContainer = document.getElementById('ai-match-results');
+                const placeholder = document.getElementById('ai-match-placeholder');
+                
+                placeholder.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-4">
+                        <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-2"></i>
+                        <p class="font-bold text-gray-300">Calibrating matching vectors...</p>
+                    </div>
+                `;
+                placeholder.classList.remove('hidden');
+                resultsContainer.classList.add('hidden');
+                
+                const formData = new FormData();
+                formData.append('skills', skills);
+                formData.append('location', location);
+                formData.append('experience', experience);
+                
+                fetch('api_ai_match.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.results.length > 0) {
+                        placeholder.classList.add('hidden');
+                        resultsContainer.innerHTML = '';
+                        
+                        data.results.forEach(job => {
+                            const card = `
+                                <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-indigo-500/50 transition-all flex flex-col justify-between relative">
+                                    <span class="absolute top-4 right-4 bg-emerald-500/20 text-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full"><i class="fas fa-sparkles text-amber-400 mr-0.5"></i> ${job.match_score}% Match</span>
+                                    <div>
+                                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-primary mb-3">
+                                            <i class="fas fa-building text-sm"></i>
+                                        </div>
+                                        <h4 class="font-bold text-white text-xs truncate">${job.title}</h4>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">${job.company_name}</p>
+                                        
+                                        <div class="flex flex-wrap gap-1.5 mt-3">
+                                            <span class="bg-white/10 text-gray-300 text-[9px] px-2 py-0.5 rounded font-semibold"><i class="fas fa-map-marker-alt mr-0.5"></i> ${job.location}</span>
+                                            <span class="bg-white/10 text-gray-300 text-[9px] px-2 py-0.5 rounded font-semibold"><i class="fas fa-briefcase mr-0.5"></i> ${job.type}</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 pt-3 border-t border-white/10">
+                                        <button onclick="easyApply(${job.id}, this)" class="w-full bg-primary hover:bg-indigo-700 text-white font-extrabold text-[10px] py-2 rounded-lg transition">Easy Apply</button>
+                                    </div>
+                                </div>
+                            `;
+                            resultsContainer.insertAdjacentHTML('beforeend', card);
+                        });
+                        
+                        resultsContainer.classList.remove('hidden');
+                    } else {
+                        placeholder.innerHTML = `
+                            <i class="fas fa-exclamation-circle text-lg text-amber-400 mb-1.5 animate-bounce"></i>
+                            <p class="font-bold text-gray-300">No vacancies matched</p>
+                            <p class="text-[10px] text-gray-500">We couldn't find matches matching those specific tags. Try broadening your keywords.</p>
+                        `;
+                        placeholder.classList.remove('hidden');
+                    }
+                })
+                .catch(err => {
+                    placeholder.innerHTML = `
+                        <i class="fas fa-times-circle text-lg text-red-500 mb-1.5"></i>
+                        <p class="font-bold text-gray-300">Calibration failed</p>
+                        <p class="text-[10px] text-gray-500">An unexpected system check failure occurred. Please try again.</p>
+                    `;
+                    placeholder.classList.remove('hidden');
+                });
             }
             </script>
         </div>
