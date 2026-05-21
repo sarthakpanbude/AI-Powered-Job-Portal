@@ -18,7 +18,10 @@ $query = "SELECT j.*, r.company_name, r.company_logo FROM jobs j JOIN recruiters
 $params = [];
 
 if ($search) {
-    $query .= " AND j.title LIKE ?";
+    $query .= " AND (j.title LIKE ? OR r.company_name LIKE ? OR j.skills_required LIKE ? OR j.description LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
     $params[] = "%$search%";
 }
 if ($location) {
