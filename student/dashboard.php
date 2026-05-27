@@ -1,11 +1,7 @@
 <?php
-session_start();
 require_once '../config/db.php';
-
-if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
-    header("Location: ../login.php");
-    exit();
-}
+require_once '../includes/auth_check.php';
+check_auth(['student']);
 
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT u.email, s.* FROM users u JOIN students s ON u.id = s.user_id WHERE u.id = ?");
@@ -57,6 +53,16 @@ usort($matches, function($a, $b) {
     return $b['match_score'] <=> $a['match_score'];
 });
 
+// Fetch recent applications for pipeline tracking
+$stmt = $pdo->prepare("SELECT a.*, j.title, j.location, j.type, r.company_name, r.company_logo 
+                       FROM applications a 
+                       JOIN jobs j ON a.job_id = j.id 
+                       JOIN recruiters r ON j.recruiter_id = r.id 
+                       WHERE a.student_id = ? 
+                       ORDER BY a.applied_at DESC LIMIT 3");
+$stmt->execute([$student['id']]);
+$recent_applications = $stmt->fetchAll();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,7 +109,7 @@ usort($matches, function($a, $b) {
     <!-- Main Content Panel -->
     <main class="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
         <!-- Top bar Header -->
-        <header class="bg-white border-b border-gray-100 h-20 flex items-center justify-between px-8 z-10 sticky top-0">
+        <header class="bg-white border-b border-gray-100 h-20 flex items-center justify-between px-8 z-[999] sticky top-0">
             <div>
                 <h2 class="text-2xl font-black text-gray-800 tracking-tight">Overview Dashboard</h2>
                 <p class="text-xs text-gray-400 font-medium">Welcome back, <?php echo htmlspecialchars($student['first_name']); ?>! Tracking your career progress.</p>
@@ -117,7 +123,7 @@ usort($matches, function($a, $b) {
                 </div>
                 
                 <!-- Notification Bell Container -->
-                <div class="relative">
+                <div class="relative z-[1000]">
                     <button id="notification-bell" onclick="toggleNotificationDropdown(event)" class="text-gray-400 hover:text-primary relative p-1.5 bg-gray-50 hover:bg-indigo-50 border border-gray-100 rounded-xl transition focus:outline-none">
                         <i class="fas fa-bell text-lg"></i>
                         <?php if ($unread_count > 0): ?>
@@ -129,7 +135,7 @@ usort($matches, function($a, $b) {
                     </button>
 
                     <!-- Dropdown -->
-                    <div id="notification-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-white/95 border border-gray-100 rounded-2xl shadow-xl z-50 backdrop-blur-md overflow-hidden transition-all duration-200 origin-top-right">
+                    <div id="notification-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-white/95 border border-gray-100 rounded-2xl shadow-xl z-[1001] backdrop-blur-md overflow-hidden transition-all duration-200 origin-top-right">
                         <div class="p-4 border-b border-gray-50 flex items-center justify-between">
                             <span class="font-bold text-gray-800 text-sm">Notifications</span>
                             <?php if ($unread_count > 0): ?>
@@ -167,41 +173,41 @@ usort($matches, function($a, $b) {
         <div class="p-8 space-y-8 flex-1">
             
             <!-- AI Real-Time Job Calibration Matcher (Hero Section) -->
-            <div class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 rounded-[2rem] border border-indigo-500/20 p-8 text-white relative overflow-hidden shadow-[0_20px_50px_rgba(79,70,229,0.15)]">
+            <div class="bg-gradient-to-br from-[#E0F2FE] via-[#F8FAFC] to-[#E0E7FF] rounded-[2rem] border border-sky-200/60 p-8 text-slate-800 relative overflow-hidden shadow-[0_20px_50px_rgba(14,165,233,0.08)]">
                 <!-- Decorative luxury background glows -->
-                <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/25 rounded-full blur-[100px] pointer-events-none"></div>
-                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none"></div>
-                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-sky-300/20 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-300/20 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-200/10 via-transparent to-transparent pointer-events-none"></div>
 
                 <div class="relative z-10 space-y-6 max-w-5xl mx-auto">
                     <div class="text-center space-y-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-indigo-500/10 text-indigo-300 border border-indigo-500/25 mb-1 animate-pulse">
-                            <i class="fas fa-sparkles text-amber-400"></i> Interactive AI Engine
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-primary/10 text-primary border border-primary/20 mb-1 animate-pulse">
+                            <i class="fas fa-sparkles text-primary"></i> Interactive AI Engine
                         </span>
-                        <h3 class="text-3xl font-black text-white tracking-tight leading-none">AI Real-Time Job Calibration Matcher</h3>
-                        <p class="text-[11px] text-indigo-200/60 max-w-xl mx-auto font-medium">Input your custom criteria parameters to match active opportunities inside the portal.</p>
+                        <h3 class="text-3xl font-black text-slate-800 tracking-tight leading-none">AI Real-Time Job Calibration Matcher</h3>
+                        <p class="text-[11px] text-slate-500 max-w-xl mx-auto font-medium">Input your custom criteria parameters to match active opportunities inside the portal.</p>
                     </div>
 
                     <!-- Input Form Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white/80 border border-sky-100 p-5 rounded-2xl backdrop-blur-md shadow-sm">
                         <div>
-                            <label class="block text-[10px] font-extrabold text-indigo-200 uppercase tracking-widest mb-2"><i class="fas fa-magic mr-1 text-primary"></i> Skills Keywords</label>
-                            <input type="text" id="ai-skills" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-3 text-xs text-white placeholder-indigo-300/30 focus:bg-white/10 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition duration-300 font-semibold" placeholder="PHP, Javascript, SQL">
+                            <label class="block text-[10px] font-extrabold text-slate-600 uppercase tracking-widest mb-2"><i class="fas fa-magic mr-1 text-primary"></i> Skills Keywords</label>
+                            <input type="text" id="ai-skills" class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-3 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition duration-300 font-semibold" placeholder="PHP, Javascript, SQL">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-extrabold text-indigo-200 uppercase tracking-widest mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary"></i> Target Location</label>
-                            <input type="text" id="ai-location" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-3 text-xs text-white placeholder-indigo-300/30 focus:bg-white/10 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition duration-300 font-semibold" placeholder="Enter Location">
+                            <label class="block text-[10px] font-extrabold text-slate-600 uppercase tracking-widest mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary"></i> Target Location</label>
+                            <input type="text" id="ai-location" class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-3 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition duration-300 font-semibold" placeholder="Enter Location">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-extrabold text-indigo-200 uppercase tracking-widest mb-2"><i class="fas fa-briefcase mr-1 text-primary"></i> Experience Tier</label>
-                            <select id="ai-experience" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-3 text-xs text-indigo-100 outline-none transition duration-300 font-semibold cursor-pointer focus:border-indigo-400">
+                            <label class="block text-[10px] font-extrabold text-slate-600 uppercase tracking-widest mb-2"><i class="fas fa-briefcase mr-1 text-primary"></i> Experience Tier</label>
+                            <select id="ai-experience" class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-3 text-xs text-slate-800 outline-none transition duration-300 font-semibold cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary">
                                 <option value="fresh">Freshers (0-1 yrs)</option>
                                 <option value="mid">Associate (2-4 yrs)</option>
                                 <option value="senior">Senior Developer (5+ yrs)</option>
                             </select>
                         </div>
                         <div>
-                            <button onclick="triggerRealtimeAIMatcher()" class="w-full bg-gradient-to-r from-primary to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-extrabold text-xs py-3.5 rounded-xl transition duration-300 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-1.5">
+                            <button onclick="triggerRealtimeAIMatcher()" class="w-full bg-gradient-to-r from-primary to-indigo-600 hover:from-indigo-500 hover:to-indigo-700 text-white font-extrabold text-xs py-3.5 rounded-xl transition duration-300 shadow-md shadow-primary/20 flex items-center justify-center gap-1.5">
                                 <i class="fas fa-microchip animate-spin-slow"></i> Scan & Calibrate
                             </button>
                         </div>
@@ -213,73 +219,73 @@ usort($matches, function($a, $b) {
                     </div>
                     
                     <!-- Pre-match status info -->
-                    <div id="ai-match-placeholder" class="border border-dashed border-indigo-500/20 rounded-2xl p-6 text-center text-indigo-200/50 text-xs">
-                        <i class="fas fa-radar text-lg text-indigo-400 animate-pulse mb-1.5"></i>
-                        <p class="font-bold text-indigo-200">System Ready for Calibration</p>
-                        <p class="text-[10px] text-indigo-300/40">Adjust options above and click Scan to execute the query.</p>
+                    <div id="ai-match-placeholder" class="border border-dashed border-sky-200 rounded-2xl p-6 text-center text-slate-500 text-xs bg-white/30">
+                        <i class="fas fa-radar text-lg text-primary animate-pulse mb-1.5"></i>
+                        <p class="font-bold text-slate-700">System Ready for Calibration</p>
+                        <p class="text-[10px] text-slate-500">Adjust options above and click Scan to execute the query.</p>
                     </div>
 
                     <!-- Trusted corporate partners banner inside hero -->
-                    <div class="pt-4 border-t border-white/5">
-                        <p class="text-[9px] font-bold text-indigo-300/30 uppercase tracking-widest text-center mb-3">INTEGRATED CAREER PLACEMENT PARTNERS</p>
-                        <div class="flex flex-wrap items-center justify-center gap-8 opacity-40 grayscale hover:grayscale-0 transition duration-300">
-                            <span class="text-xs font-black text-indigo-200 tracking-tight">Capgemini</span>
-                            <span class="text-xs font-black text-indigo-200 tracking-tight">genpact</span>
-                            <span class="text-xs font-black text-indigo-200 tracking-tight">ICICI Bank</span>
-                            <span class="text-xs font-black text-indigo-200 tracking-tight">kotak</span>
-                            <span class="text-xs font-black text-indigo-200 tracking-tight">Tech Mahindra</span>
+                    <div class="pt-4 border-t border-sky-100">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center mb-3">INTEGRATED CAREER PLACEMENT PARTNERS</p>
+                        <div class="flex flex-wrap items-center justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition duration-300">
+                            <span class="text-xs font-black text-slate-600 tracking-tight">Capgemini</span>
+                            <span class="text-xs font-black text-slate-600 tracking-tight">genpact</span>
+                            <span class="text-xs font-black text-slate-600 tracking-tight">ICICI Bank</span>
+                            <span class="text-xs font-black text-slate-600 tracking-tight">kotak</span>
+                            <span class="text-xs font-black text-slate-600 tracking-tight">Tech Mahindra</span>
                         </div>
                     </div>
                 </div>
             </div>
             
             
-            <!-- Dynamic Gradient Stats Grid -->
+            <!-- Dynamic Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Applied Jobs -->
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl text-white shadow-lg shadow-indigo-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 border border-indigo-500/30 p-6 rounded-2xl text-white shadow-lg shadow-indigo-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-indigo-100 font-bold uppercase tracking-wider">Applied Jobs</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight"><?php echo $total_applied; ?></p>
-                        <p class="text-[10px] text-indigo-100/80 font-medium mt-1"><i class="fas fa-arrow-up mr-0.5"></i> 2 new this week</p>
+                        <p class="text-xs text-indigo-200 font-bold uppercase tracking-wider">Applied Jobs</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white"><?php echo $total_applied; ?></p>
+                        <p class="text-[10px] text-indigo-200 font-semibold mt-1"><i class="fas fa-arrow-up mr-0.5 text-emerald-300"></i> 2 new this week</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-paper-plane"></i>
                     </div>
                 </div>
 
-                <!-- Shortlisted / Interviews -->
-                <div class="bg-gradient-to-br from-emerald-400 to-teal-600 p-6 rounded-2xl text-white shadow-lg shadow-teal-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <!-- Shortlisted -->
+                <div class="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 border border-emerald-500/30 p-6 rounded-2xl text-white shadow-lg shadow-emerald-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-teal-50 font-bold uppercase tracking-wider">Shortlisted</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight"><?php echo $shortlisted; ?></p>
-                        <p class="text-[10px] text-teal-100/80 font-medium mt-1"><i class="fas fa-star mr-0.5"></i> Match score above 85%</p>
+                        <p class="text-xs text-emerald-200 font-bold uppercase tracking-wider">Shortlisted</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white"><?php echo $shortlisted; ?></p>
+                        <p class="text-[10px] text-emerald-200 font-semibold mt-1"><i class="fas fa-star mr-0.5 text-amber-300"></i> Match score above 85%</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-award"></i>
                     </div>
                 </div>
 
-                <!-- Resume Completeness/Score -->
-                <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-6 rounded-2xl text-white shadow-lg shadow-fuchsia-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <!-- ATS Resume Score -->
+                <div class="bg-gradient-to-br from-purple-600 via-purple-700 to-fuchsia-800 border border-purple-500/30 p-6 rounded-2xl text-white shadow-lg shadow-purple-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-purple-50 font-bold uppercase tracking-wider">ATS Resume Score</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight"><?php echo $student['resume_score']; ?><span class="text-sm font-medium">/100</span></p>
-                        <p class="text-[10px] text-purple-100/80 font-medium mt-1"><i class="fas fa-check-circle mr-0.5"></i> ATS validated & matched</p>
+                        <p class="text-xs text-purple-200 font-bold uppercase tracking-wider">ATS Resume Score</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white"><?php echo $student['resume_score']; ?><span class="text-sm font-medium text-purple-200">/100</span></p>
+                        <p class="text-[10px] text-purple-200 font-semibold mt-1"><i class="fas fa-check-circle mr-0.5 text-emerald-300"></i> ATS validated & matched</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-brain"></i>
                     </div>
                 </div>
 
                 <!-- Referral Balance -->
-                <div class="bg-gradient-to-br from-amber-400 to-orange-500 p-6 rounded-2xl text-white shadow-lg shadow-orange-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <div class="bg-gradient-to-br from-amber-600 via-amber-700 to-orange-850 border border-amber-500/30 p-6 rounded-2xl text-white shadow-lg shadow-amber-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-amber-50 font-bold uppercase tracking-wider">Wallet Rewards</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight">$<?php echo number_format($student['wallet_balance'], 2); ?></p>
-                        <p class="text-[10px] text-amber-100/80 font-medium mt-1"><i class="fas fa-coins mr-0.5"></i> Ready for redemption</p>
+                        <p class="text-xs text-amber-200 font-bold uppercase tracking-wider">Wallet Rewards</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white">$<?php echo number_format($student['wallet_balance'], 2); ?></p>
+                        <p class="text-[10px] text-amber-200 font-semibold mt-1"><i class="fas fa-coins mr-0.5 text-amber-300"></i> Ready for redemption</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-wallet"></i>
                     </div>
                 </div>
@@ -328,6 +334,17 @@ usort($matches, function($a, $b) {
                                     <div>
                                         <p class="text-xs font-bold text-gray-800">Explore Active Roles</p>
                                         <p class="text-[10px] text-gray-400">Browse and search matching posts</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right text-xs text-gray-400 group-hover:text-primary transition-transform group-hover:translate-x-1"></i>
+                            </a>
+
+                            <a href="../companies.php" class="flex items-center justify-between p-3.5 bg-gray-50 border border-gray-100 rounded-xl hover:bg-indigo-50 hover:border-indigo-100 transition group">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-sm"><i class="fas fa-building"></i></span>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-800">Explore Top Companies</p>
+                                        <p class="text-[10px] text-gray-400">View hiring profiles and postings</p>
                                     </div>
                                 </div>
                                 <i class="fas fa-chevron-right text-xs text-gray-400 group-hover:text-primary transition-transform group-hover:translate-x-1"></i>
@@ -407,6 +424,156 @@ usort($matches, function($a, $b) {
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- New Grid: Application Pipeline Tracker & AI Resume Suggestions -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left: Application Status Pipeline Tracker (Col span 2) -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-route text-primary"></i> Application Status Stepper</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Real-time status tracking pipeline of your recent job applications</p>
+                        </div>
+                        <a href="applications.php" class="text-xs text-primary hover:underline font-bold">View Applications</a>
+                    </div>
+
+                    <div class="space-y-6">
+                        <?php if (empty($recent_applications)): ?>
+                            <div class="p-8 border border-dashed rounded-xl text-center bg-gray-50/50">
+                                <i class="fas fa-briefcase text-4xl text-gray-300 mb-2"></i>
+                                <p class="text-sm font-semibold text-gray-500">No applications found.</p>
+                                <p class="text-xs text-gray-400 mt-1">Start applying to vacancies from the search panel!</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($recent_applications as $app): 
+                                $status = $app['status'];
+                                // Define steps and active index
+                                $steps = ['applied', 'under_review', 'shortlisted', 'interview_scheduled', 'selected'];
+                                $step_labels = ['Applied', 'Review', 'Shortlist', 'Interview', 'Selected'];
+                                $active_idx = array_search($status, $steps);
+                                if ($active_idx === false) {
+                                    $active_idx = 0; // fallback
+                                }
+                                if ($status === 'rejected') {
+                                    $step_labels[min($active_idx + 1, 4)] = 'Rejected';
+                                }
+                            ?>
+                                <div class="bg-slate-50/80 p-5 rounded-2xl border border-slate-100/50 space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-gray-800 text-sm"><?php echo htmlspecialchars($app['title']); ?></h4>
+                                            <p class="text-xs text-gray-400 font-semibold"><?php echo htmlspecialchars($app['company_name']); ?> • <?php echo htmlspecialchars($app['location']); ?></p>
+                                        </div>
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-white border border-gray-150 shadow-sm
+                                            <?php 
+                                            if ($status === 'selected') echo 'text-emerald-600 border-emerald-200';
+                                            elseif ($status === 'rejected') echo 'text-red-600 border-red-200';
+                                            else echo 'text-primary border-indigo-200';
+                                            ?>">
+                                            <?php echo ucfirst(str_replace('_', ' ', $status)); ?>
+                                        </span>
+                                    </div>
+
+                                    <!-- Stepper graphic -->
+                                    <div class="relative pt-2">
+                                        <div class="absolute inset-y-0 left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 rounded-full z-0"></div>
+                                        <div class="absolute inset-y-0 left-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full z-0 transition-all duration-500" style="width: <?php echo ($active_idx / 4) * 100; ?>%;"></div>
+                                        
+                                        <div class="relative z-10 flex justify-between">
+                                            <?php foreach ($step_labels as $idx => $label): 
+                                                $is_completed = $idx <= $active_idx;
+                                                $is_current = $idx === $active_idx;
+                                                $is_rejected = $status === 'rejected' && $idx === $active_idx;
+                                            ?>
+                                                <div class="flex flex-col items-center">
+                                                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold transition-all duration-300 border shadow-sm
+                                                        <?php 
+                                                        if ($is_rejected) echo 'bg-red-500 border-red-600 text-white';
+                                                        elseif ($is_current) echo 'bg-primary border-indigo-700 text-white scale-110';
+                                                        elseif ($is_completed) echo 'bg-indigo-600 border-indigo-700 text-white';
+                                                        else echo 'bg-white border-gray-300 text-gray-400';
+                                                        ?>">
+                                                        <?php if ($is_rejected): ?>
+                                                            <i class="fas fa-times"></i>
+                                                        <?php elseif ($is_completed && $idx < $active_idx): ?>
+                                                            <i class="fas fa-check"></i>
+                                                        <?php else: ?>
+                                                            <?php echo $idx + 1; ?>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <span class="text-[9px] font-black uppercase mt-1.5 tracking-wider 
+                                                        <?php echo $is_completed ? 'text-indigo-950 font-bold' : 'text-gray-400'; ?>">
+                                                        <?php echo $label; ?>
+                                                    </span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Right: AI-Based Resume Recommendations (Col span 1) -->
+                <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-2"><i class="fas fa-robot text-primary animate-pulse"></i> AI Resume Analyzer</h3>
+                        <p class="text-xs text-gray-400 mb-6">Automated ATS recommendations to enhance recruitment matching visibility</p>
+
+                        <div class="space-y-4">
+                            <!-- Match Score Card -->
+                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center gap-4">
+                                <div class="relative w-14 h-14 flex items-center justify-center text-indigo-950 shrink-0">
+                                    <svg class="w-full h-full transform -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#E2E8F0" stroke-width="4" fill="transparent" />
+                                        <circle cx="28" cy="28" r="24" stroke="#4F46E5" stroke-width="4" fill="transparent"
+                                                stroke-dasharray="150" stroke-dashoffset="<?php echo 150 - ($student['resume_score'] / 100) * 150; ?>" />
+                                    </svg>
+                                    <span class="absolute text-xs font-black"><?php echo $student['resume_score']; ?>%</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">ATS Matching Power</h4>
+                                    <p class="text-[10px] text-gray-500 leading-snug mt-0.5">Based on completion metrics and technical skills.</p>
+                                </div>
+                            </div>
+
+                            <!-- List of Suggestions -->
+                            <div class="space-y-2.5">
+                                <h4 class="text-[9px] font-black text-slate-400 uppercase tracking-widest">AI Action Suggestions</h4>
+                                <ul class="space-y-2.5 text-xs font-semibold text-gray-600">
+                                    <?php if ($student['resume_score'] < 60): ?>
+                                        <li class="flex items-start gap-2 bg-rose-50/50 p-2.5 border border-rose-100/50 rounded-xl">
+                                            <i class="fas fa-exclamation-circle text-rose-500 mt-0.5 text-sm"></i>
+                                            <p class="text-[11px] text-rose-800 leading-relaxed"><strong class="font-extrabold block">Critical Completeness Gaps</strong> Please add your educational details and professional achievements in the Resume section.</p>
+                                        </li>
+                                    <?php elseif ($student['resume_score'] < 85): ?>
+                                        <li class="flex items-start gap-2 bg-amber-50/50 p-2.5 border border-amber-100/50 rounded-xl">
+                                            <i class="fas fa-lightbulb text-amber-600 mt-0.5 text-sm animate-pulse"></i>
+                                            <p class="text-[11px] text-amber-800 leading-relaxed"><strong class="font-extrabold block">Keyword Density Gaps</strong> Add high-demand skills like <span class="font-black">Git, Docker, or AWS</span> separated by commas to increase match rates.</p>
+                                        </li>
+                                    <?php else: ?>
+                                        <li class="flex items-start gap-2 bg-emerald-50/50 p-2.5 border border-emerald-100/50 rounded-xl">
+                                            <i class="fas fa-sparkles text-emerald-600 mt-0.5 text-sm"></i>
+                                            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong class="font-extrabold block">Top-Tier ATS Rating</strong> Excellent profile! Your resume is highly optimized for placement. Top employers are notified.</p>
+                                        </li>
+                                    <?php endif; ?>
+
+                                    <li class="flex items-start gap-2 bg-indigo-50/50 p-2.5 border border-indigo-150/50 rounded-xl">
+                                        <i class="fas fa-laptop-code text-primary mt-0.5 text-sm"></i>
+                                        <p class="text-[11px] text-indigo-900 leading-relaxed"><strong class="font-extrabold block">Pending Skill Evaluation</strong> Carry out a Skill Test to add a verified credential badge next to your applicant files.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="resume.php" class="w-full bg-primary hover:bg-indigo-700 text-white font-extrabold text-xs py-3 rounded-xl transition shadow-md shadow-primary/10 flex items-center justify-center gap-1.5 mt-4">
+                        <i class="fas fa-magic"></i> Launch AI Optimizer
+                    </a>
                 </div>
             </div>
 
@@ -668,7 +835,7 @@ usort($matches, function($a, $b) {
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'toast-container';
-                container.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none';
+                container.className = 'fixed bottom-5 right-5 z-[10000] flex flex-col gap-3 max-w-sm w-full pointer-events-none';
                 document.body.appendChild(container);
             }
 
@@ -756,7 +923,7 @@ usort($matches, function($a, $b) {
     </script>
 
     <!-- LinkedIn Style Easy Apply Modal -->
-    <div id="apply-modal" class="hidden fixed inset-0 z-50 overflow-y-auto items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div id="apply-modal" class="hidden fixed inset-0 z-[9999] overflow-y-auto items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-lg w-full overflow-hidden flex flex-col relative transform scale-95 transition-all duration-300" id="modal-container">
             <!-- Header -->
             <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
@@ -1182,7 +1349,6 @@ usort($matches, function($a, $b) {
                         `;
                         grid.insertAdjacentHTML('beforeend', card);
                     });
-                    grid.style.opacity = '1';
                 }, 150);
             }
 
@@ -1197,7 +1363,7 @@ usort($matches, function($a, $b) {
                 placeholder.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-4">
                         <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-2"></i>
-                        <p class="font-bold text-gray-300">Calibrating matching vectors...</p>
+                        <p class="font-bold text-slate-600">Calibrating matching vectors...</p>
                     </div>
                 `;
                 placeholder.classList.remove('hidden');
@@ -1220,22 +1386,22 @@ usort($matches, function($a, $b) {
                         
                         data.results.forEach(job => {
                             const card = `
-                                <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-indigo-500/50 transition-all flex flex-col justify-between relative">
-                                    <span class="absolute top-4 right-4 bg-emerald-500/20 text-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full"><i class="fas fa-sparkles text-amber-400 mr-0.5"></i> ${job.match_score}% Match</span>
+                                <div class="bg-white border border-sky-100 rounded-2xl p-5 hover:border-primary hover:shadow-md transition-all duration-300 flex flex-col justify-between relative">
+                                    <span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fas fa-sparkles text-primary mr-0.5"></i> \${job.match_score}% Match</span>
                                     <div>
-                                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-primary mb-3">
+                                        <div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-primary mb-3">
                                             <i class="fas fa-building text-sm"></i>
                                         </div>
-                                        <h4 class="font-bold text-white text-xs truncate">${job.title}</h4>
-                                        <p class="text-[10px] text-gray-400 mt-0.5">${job.company_name}</p>
+                                        <h4 class="font-bold text-slate-800 text-xs truncate">\${job.title}</h4>
+                                        <p class="text-[10px] text-slate-500 mt-0.5">\${job.company_name}</p>
                                         
                                         <div class="flex flex-wrap gap-1.5 mt-3">
-                                            <span class="bg-white/10 text-gray-300 text-[9px] px-2 py-0.5 rounded font-semibold"><i class="fas fa-map-marker-alt mr-0.5"></i> ${job.location}</span>
-                                            <span class="bg-white/10 text-gray-300 text-[9px] px-2 py-0.5 rounded font-semibold"><i class="fas fa-briefcase mr-0.5"></i> ${job.type}</span>
+                                            <span class="bg-slate-100 text-slate-600 text-[9px] px-2 py-0.5 rounded font-semibold"><i class="fas fa-map-marker-alt mr-0.5"></i> \${job.location}</span>
+                                            <span class="bg-slate-100 text-slate-600 text-[9px] px-2 py-0.5 rounded font-semibold"><i class="fas fa-briefcase mr-0.5"></i> \${job.type}</span>
                                         </div>
                                     </div>
-                                    <div class="mt-4 pt-3 border-t border-white/10">
-                                        <button onclick="easyApply(${job.id}, this)" class="w-full bg-primary hover:bg-indigo-700 text-white font-extrabold text-[10px] py-2 rounded-lg transition">Easy Apply</button>
+                                    <div class="mt-4 pt-3 border-t border-slate-100">
+                                        <button onclick="easyApply(\${job.id}, this)" class="w-full bg-primary hover:bg-indigo-700 text-white font-extrabold text-[10px] py-2 rounded-lg transition shadow-sm">Easy Apply</button>
                                     </div>
                                 </div>
                             `;
@@ -1245,9 +1411,9 @@ usort($matches, function($a, $b) {
                         resultsContainer.classList.remove('hidden');
                     } else {
                         placeholder.innerHTML = `
-                            <i class="fas fa-exclamation-circle text-lg text-amber-400 mb-1.5 animate-bounce"></i>
-                            <p class="font-bold text-gray-300">No vacancies matched</p>
-                            <p class="text-[10px] text-gray-500">We couldn't find matches matching those specific tags. Try broadening your keywords.</p>
+                            <i class="fas fa-exclamation-circle text-lg text-primary mb-1.5 animate-bounce"></i>
+                            <p class="font-bold text-slate-700">No vacancies matched</p>
+                            <p class="text-[10px] text-slate-500">We couldn't find matches matching those specific tags. Try broadening your keywords.</p>
                         `;
                         placeholder.classList.remove('hidden');
                     }
@@ -1255,8 +1421,8 @@ usort($matches, function($a, $b) {
                 .catch(err => {
                     placeholder.innerHTML = `
                         <i class="fas fa-times-circle text-lg text-red-500 mb-1.5"></i>
-                        <p class="font-bold text-gray-300">Calibration failed</p>
-                        <p class="text-[10px] text-gray-500">An unexpected system check failure occurred. Please try again.</p>
+                        <p class="font-bold text-slate-700">Calibration failed</p>
+                        <p class="text-[10px] text-slate-500">An unexpected system check failure occurred. Please try again.</p>
                     `;
                     placeholder.classList.remove('hidden');
                 });

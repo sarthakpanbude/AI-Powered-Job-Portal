@@ -4,7 +4,7 @@ include 'includes/header.php';
 include 'includes/navbar.php'; 
 ?>
 
-<<!-- Hero Section -->
+<!-- Hero Section -->
 <div class="relative bg-gradient-to-b from-[#F3F4F6] via-[#F8FAFC] to-white pt-16 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-gray-100/50 bg-grid">
     <div class="absolute inset-0 z-0">
         <!-- Floating circular glow accents -->

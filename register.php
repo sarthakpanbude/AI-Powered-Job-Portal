@@ -37,30 +37,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->fetch()) {
             $error = "Email is already registered.";
         } else {
-            try {
-                $pdo->beginTransaction();
-                
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
-                $stmt->execute([$email, $hashed_password, $role]);
-                $user_id = $pdo->lastInsertId();
-
-                if ($role == 'student') {
-                    // Generate unique referral code for student
-                    $my_referral = strtoupper(substr($first_name, 0, 3) . rand(1000, 9999));
-                    
-                    $stmt = $pdo->prepare("INSERT INTO students (user_id, first_name, last_name, referral_code, referred_by) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([$user_id, $first_name, $last_name, $my_referral, $referral_code]);
-                } elseif ($role == 'recruiter') {
-                    $stmt = $pdo->prepare("INSERT INTO recruiters (user_id, company_name) VALUES (?, ?)");
-                    $stmt->execute([$user_id, $company_name]);
+            // Check if referral code is valid
+            $referrer = null;
+            if ($role === 'student' && !empty($referral_code)) {
+                $stmt = $pdo->prepare("SELECT id, user_id FROM students WHERE referral_code = ?");
+                $stmt->execute([$referral_code]);
+                $referrer = $stmt->fetch();
+                if (!$referrer) {
+                    $error = "Invalid referral code. Please enter a valid code or leave it blank.";
                 }
+            }
 
-                $pdo->commit();
-                $success = "Registration successful! Please login.";
-            } catch (Exception $e) {
-                $pdo->rollBack();
-                $error = "Registration failed: " . $e->getMessage();
+            if (empty($error)) {
+                try {
+                    $pdo->beginTransaction();
+                    
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
+                    $stmt->execute([$email, $hashed_password, $role]);
+                    $user_id = $pdo->lastInsertId();
+
+                    if ($role == 'student') {
+                        // Generate unique referral code for student
+                        $my_referral = strtoupper(substr($first_name, 0, 3) . rand(1000, 9999));
+                        
+                        $stmt = $pdo->prepare("INSERT INTO students (user_id, first_name, last_name, referral_code, referred_by) VALUES (?, ?, ?, ?, ?)");
+                        $stmt->execute([$user_id, $first_name, $last_name, $my_referral, !empty($referral_code) ? $referral_code : null]);
+                        
+                        // If referred by a valid user, credit their wallet with $25.00 cash bonus!
+                        if ($referrer) {
+                            $updateWallet = $pdo->prepare("UPDATE students SET wallet_balance = wallet_balance + 25.00 WHERE id = ?");
+                            $updateWallet->execute([$referrer['id']]);
+                            
+                            // Send system notification to the referring student
+                            $notif_title = "Referral Signup Bonus Credited!";
+                            $notif_msg = "Congratulations! Your friend " . htmlspecialchars($first_name . ' ' . $last_name) . " has successfully signed up using your referral code. A reward of **$25.00** has been credited to your wallet balance.";
+                            $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)");
+                            $notifStmt->execute([$referrer['user_id'], $notif_title, $notif_msg]);
+                        }
+                    } elseif ($role == 'recruiter') {
+                        $stmt = $pdo->prepare("INSERT INTO recruiters (user_id, company_name) VALUES (?, ?)");
+                        $stmt->execute([$user_id, $company_name]);
+                    }
+
+                    $pdo->commit();
+                    $success = "Registration successful! Please login.";
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    $error = "Registration failed: " . $e->getMessage();
+                }
             }
         }
     }

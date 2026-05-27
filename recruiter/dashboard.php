@@ -1,11 +1,7 @@
 <?php
-session_start();
 require_once '../config/db.php';
-
-if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'recruiter') {
-    header("Location: ../login.php");
-    exit();
-}
+require_once '../includes/auth_check.php';
+check_auth(['recruiter']);
 
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT u.email, r.* FROM users u JOIN recruiters r ON u.id = r.user_id WHERE u.id = ?");
@@ -37,6 +33,30 @@ $stmt = $pdo->prepare("SELECT a.id as application_id, a.status as application_st
                        LIMIT 5");
 $stmt->execute([$recruiter['id']]);
 $recent_applicants = $stmt->fetchAll();
+
+// Fetch upcoming scheduled interviews
+$stmt = $pdo->prepare("SELECT i.id as interview_id, i.interview_date, i.interview_link, i.status as interview_status, j.title as job_title, s.first_name, s.last_name, s.profile_pic, s.id as student_id
+                       FROM interviews i 
+                       JOIN applications a ON i.application_id = a.id 
+                       JOIN jobs j ON a.job_id = j.id 
+                       JOIN students s ON a.student_id = s.id 
+                       WHERE j.recruiter_id = ? AND i.status = 'scheduled'
+                       ORDER BY i.interview_date ASC 
+                       LIMIT 4");
+$stmt->execute([$recruiter['id']]);
+$upcoming_interviews_list = $stmt->fetchAll();
+
+// AI Candidate Fit Analysis: Fetch applicants sorted by resume_score (ATS rating) descending
+$stmt = $pdo->prepare("SELECT a.id as application_id, a.status as application_status, j.title as job_title, s.first_name, s.last_name, s.resume_score, s.skills, u.email as student_email, s.profile_pic, s.id as student_id
+                       FROM applications a 
+                       JOIN jobs j ON a.job_id = j.id 
+                       JOIN students s ON a.student_id = s.id 
+                       JOIN users u ON s.user_id = u.id
+                       WHERE j.recruiter_id = ? 
+                       ORDER BY s.resume_score DESC 
+                       LIMIT 4");
+$stmt->execute([$recruiter['id']]);
+$ai_fit_candidates = $stmt->fetchAll();
 
 // Dynamic Application Pipeline Chart Data (Last 6 Months)
 $months = [];
@@ -207,40 +227,40 @@ foreach ($months as $key => $val) {
         <!-- Main Dashboard Viewport -->
         <div class="p-8 space-y-8 flex-1">
             
-            <!-- Dynamic Gradient Stats Grid -->
+            <!-- Dynamic Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Active Jobs -->
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl text-white shadow-lg shadow-indigo-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 border border-indigo-500/30 p-6 rounded-2xl text-white shadow-lg shadow-indigo-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-indigo-100 font-bold uppercase tracking-wider">Active Jobs</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight"><?php echo $active_jobs; ?></p>
-                        <p class="text-[10px] text-indigo-100/80 font-medium mt-1"><i class="fas fa-check-circle mr-0.5"></i> Open and receiving matches</p>
+                        <p class="text-xs text-indigo-200 font-bold uppercase tracking-wider">Active Jobs</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white"><?php echo $active_jobs; ?></p>
+                        <p class="text-[10px] text-indigo-200 font-semibold mt-1"><i class="fas fa-check-circle mr-0.5 text-emerald-300"></i> Open and receiving matches</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-briefcase"></i>
                     </div>
                 </div>
 
-                <!-- Total Applicants -->
-                <div class="bg-gradient-to-br from-emerald-400 to-teal-600 p-6 rounded-2xl text-white shadow-lg shadow-teal-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <!-- Total Candidates -->
+                <div class="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 border border-emerald-500/30 p-6 rounded-2xl text-white shadow-lg shadow-emerald-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-teal-50 font-bold uppercase tracking-wider">Total Candidates</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight"><?php echo $total_applicants; ?></p>
-                        <p class="text-[10px] text-teal-100/80 font-medium mt-1"><i class="fas fa-users mr-0.5"></i> Evaluated via ATS Score</p>
+                        <p class="text-xs text-emerald-200 font-bold uppercase tracking-wider">Total Candidates</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white"><?php echo $total_applicants; ?></p>
+                        <p class="text-[10px] text-emerald-200 font-semibold mt-1"><i class="fas fa-users mr-0.5 text-emerald-300"></i> Evaluated via ATS Score</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-users"></i>
                     </div>
                 </div>
 
                 <!-- Interviews Scheduled -->
-                <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-6 rounded-2xl text-white shadow-lg shadow-fuchsia-500/10 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1">
+                <div class="bg-gradient-to-br from-purple-600 via-purple-700 to-fuchsia-800 border border-purple-500/30 p-6 rounded-2xl text-white shadow-lg shadow-purple-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-purple-50 font-bold uppercase tracking-wider">Scheduled Interviews</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight"><?php echo $scheduled_interviews; ?></p>
-                        <p class="text-[10px] text-purple-100/80 font-medium mt-1"><i class="fas fa-calendar-check mr-0.5"></i> Active candidate assessments</p>
+                        <p class="text-xs text-purple-200 font-bold uppercase tracking-wider">Scheduled Interviews</p>
+                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white"><?php echo $scheduled_interviews; ?></p>
+                        <p class="text-[10px] text-purple-200 font-semibold mt-1"><i class="fas fa-calendar-check mr-0.5 text-amber-300"></i> Active candidate assessments</p>
                     </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl backdrop-blur-md">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                 </div>
@@ -303,6 +323,164 @@ foreach ($months as $key => $val) {
                                 </div>
                                 <i class="fas fa-chevron-right text-xs text-gray-400 group-hover:text-primary transition-transform group-hover:translate-x-1"></i>
                             </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Fit & Interview Schedule Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- AI Candidate Fit Analyzer -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-robot text-primary"></i> AI Candidate Fit Analyzer
+                                </h3>
+                                <p class="text-xs text-gray-400 mt-0.5">Sourced by ATS matching algorithms & primary skill evaluations</p>
+                            </div>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                <i class="fas fa-sparkles animate-pulse text-xs"></i> Intelligent Sourcing
+                            </span>
+                        </div>
+
+                        <?php if (count($ai_fit_candidates) > 0): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <?php foreach ($ai_fit_candidates as $fit): 
+                                    $score = intval($fit['resume_score']);
+                                    // Determine rating tier
+                                    if ($score >= 90) {
+                                        $tierText = "Strong Fit";
+                                        $tierColor = "from-emerald-500 to-teal-600";
+                                        $bgBadge = "bg-emerald-50 text-emerald-700 border-emerald-150";
+                                    } elseif ($score >= 70) {
+                                        $tierText = "Moderate Fit";
+                                        $tierColor = "from-indigo-500 to-blue-600";
+                                        $bgBadge = "bg-indigo-50 text-primary border-indigo-150";
+                                    } else {
+                                        $tierText = "Needs Review";
+                                        $tierColor = "from-amber-500 to-orange-600";
+                                        $bgBadge = "bg-amber-50 text-amber-700 border-amber-150";
+                                    }
+                                    
+                                    // Skills parsing
+                                    $skills_raw = $fit['skills'] ?? '';
+                                    $skills_arr = !empty($skills_raw) ? array_map('trim', explode(',', $skills_raw)) : [];
+                                    $skills_displayed = array_slice($skills_arr, 0, 3);
+                                ?>
+                                    <div class="bg-gray-50 border border-gray-100 p-4 rounded-xl flex flex-col justify-between hover:border-primary/20 hover:bg-indigo-50/10 transition-all duration-200">
+                                        <div>
+                                            <div class="flex items-start justify-between gap-2">
+                                                <div class="flex items-center gap-3">
+                                                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($fit['first_name'].' '.$fit['last_name']); ?>&background=4F46E5&color=fff" class="w-10 h-10 rounded-xl object-cover shadow-sm">
+                                                    <div class="min-w-0">
+                                                        <h4 class="text-xs font-bold text-gray-800 truncate"><?php echo htmlspecialchars($fit['first_name'] . ' ' . $fit['last_name']); ?></h4>
+                                                        <p class="text-[10px] text-gray-400 font-semibold truncate max-w-[120px]"><?php echo htmlspecialchars($fit['job_title']); ?></p>
+                                                    </div>
+                                                </div>
+                                                <span class="inline-flex px-2 py-0.5 rounded text-[9px] font-bold border shrink-0 <?php echo $bgBadge; ?>">
+                                                    <?php echo $tierText; ?>
+                                                </span>
+                                            </div>
+
+                                            <!-- Progress bar and score details -->
+                                            <div class="mt-4">
+                                                <div class="flex justify-between items-center text-[10px] mb-1">
+                                                    <span class="text-gray-400 font-semibold">ATS Match Score</span>
+                                                    <span class="font-extrabold text-gray-800"><?php echo $score; ?>%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                                    <div class="bg-gradient-to-r <?php echo $tierColor; ?> h-full rounded-full" style="width: <?php echo $score; ?>%"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Matched Skills -->
+                                            <div class="mt-3.5 flex flex-wrap gap-1">
+                                                <?php if (count($skills_displayed) > 0): ?>
+                                                    <?php foreach ($skills_displayed as $s): ?>
+                                                        <span class="text-[8px] font-bold bg-white text-gray-600 px-2 py-0.5 rounded border border-gray-150"><?php echo htmlspecialchars($s); ?></span>
+                                                    <?php endforeach; ?>
+                                                    <?php if (count($skills_arr) > 3): ?>
+                                                        <span class="text-[8px] font-bold text-primary px-1.5 py-0.5">+<?php echo (count($skills_arr) - 3); ?></span>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <span class="text-[8px] font-bold text-gray-400 italic">No skills listed</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                            <span class="text-[9px] text-gray-400 font-semibold truncate max-w-[120px]"><i class="far fa-envelope mr-0.5"></i> <?php echo htmlspecialchars($fit['student_email']); ?></span>
+                                            <a href="applicants.php?id=<?php echo $fit['application_id']; ?>" class="text-[10px] text-primary font-bold hover:underline shrink-0">Verify Candidate <i class="fas fa-chevron-right text-[8px] ml-0.5"></i></a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-brain text-3xl mb-2 text-gray-300"></i>
+                                <p class="text-xs font-bold">Waiting for matches...</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Applicant files will trigger ATS match rankings.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Upcoming Interviews Calendar -->
+                <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                    <i class="far fa-calendar-alt text-primary"></i> Scheduled Planner
+                                </h3>
+                                <p class="text-xs text-gray-400 mt-0.5">Upcoming assessments & online meets</p>
+                            </div>
+                            <a href="interviews.php" class="text-xs text-primary hover:underline font-bold"><i class="fas fa-cog"></i></a>
+                        </div>
+
+                        <div class="space-y-4">
+                            <?php if (count($upcoming_interviews_list) > 0): ?>
+                                <?php foreach ($upcoming_interviews_list as $int): 
+                                    $time = strtotime($int['interview_date']);
+                                    $dateFormatted = date('M d, Y', $time);
+                                    $timeFormatted = date('h:i A', $time);
+                                ?>
+                                    <div class="border-l-4 border-primary bg-gray-50 p-3 rounded-r-xl border border-gray-100 flex flex-col justify-between hover:bg-gray-100/50 transition">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex items-center gap-2.5">
+                                                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($int['first_name'].' '.$int['last_name']); ?>&background=4F46E5&color=fff" class="w-8 h-8 rounded-lg object-cover">
+                                                <div>
+                                                    <h4 class="text-xs font-bold text-gray-800"><?php echo htmlspecialchars($int['first_name'] . ' ' . $int['last_name']); ?></h4>
+                                                    <p class="text-[9px] text-gray-400 font-semibold"><?php echo htmlspecialchars($int['job_title']); ?></p>
+                                                </div>
+                                            </div>
+                                            <span class="text-[8px] font-bold uppercase bg-indigo-50 text-primary border border-indigo-100 px-1.5 py-0.5 rounded">Live Meet</span>
+                                        </div>
+
+                                        <div class="mt-3 flex items-center justify-between text-[10px] border-t border-gray-100/70 pt-2 text-gray-500 font-semibold">
+                                            <span><i class="far fa-clock mr-1 text-primary"></i><?php echo $dateFormatted; ?> • <?php echo $timeFormatted; ?></span>
+                                            <?php if (!empty($int['interview_link'])): ?>
+                                                <a href="<?php echo htmlspecialchars($int['interview_link']); ?>" target="_blank" class="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-0.5">
+                                                    <i class="fas fa-video"></i> Join Call
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="text-gray-400 italic">No link</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center py-10 text-gray-500">
+                                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                                        <i class="far fa-calendar-times text-slate-400 text-lg"></i>
+                                    </div>
+                                    <p class="text-xs font-bold">No interviews listed</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Shortlist candidates to schedule live interviews.</p>
+                                    <a href="applicants.php" class="mt-3 inline-block bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-lg">Browse Candidates</a>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

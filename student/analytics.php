@@ -58,43 +58,43 @@ $student = $stmt->fetch();
             <!-- Stat cards row -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Profile Views -->
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                    <span class="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">Profile Views</span>
+                <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 border border-indigo-500/30 p-5 rounded-2xl text-white shadow-lg shadow-indigo-500/10 transition-all duration-300">
+                    <span class="text-[10px] text-indigo-200 font-bold block uppercase tracking-wider">Profile Views</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="text-2xl font-black text-gray-800">42</span>
-                        <span class="text-[10px] text-emerald-600 font-bold"><i class="fas fa-caret-up"></i> +12%</span>
+                        <span class="text-2xl font-black text-white">42</span>
+                        <span class="text-[10px] text-emerald-300 font-bold"><i class="fas fa-caret-up"></i> +12%</span>
                     </div>
-                    <span class="text-[9px] text-gray-400 block mt-2">Views in the last 7 days</span>
+                    <span class="text-[9px] text-indigo-200 block mt-2">Views in the last 7 days</span>
                 </div>
 
                 <!-- Search Appearances -->
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                    <span class="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">Search appearances</span>
+                <div class="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 border border-emerald-500/30 p-5 rounded-2xl text-white shadow-lg shadow-emerald-500/10 transition-all duration-300">
+                    <span class="text-[10px] text-emerald-200 font-bold block uppercase tracking-wider">Search appearances</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="text-2xl font-black text-gray-800">118</span>
-                        <span class="text-[10px] text-emerald-600 font-bold"><i class="fas fa-caret-up"></i> +24%</span>
+                        <span class="text-2xl font-black text-white">118</span>
+                        <span class="text-[10px] text-emerald-300 font-bold"><i class="fas fa-caret-up"></i> +24%</span>
                     </div>
-                    <span class="text-[9px] text-gray-400 block mt-2">Appeared in recruiter searches</span>
+                    <span class="text-[9px] text-emerald-200 block mt-2">Appeared in recruiter searches</span>
                 </div>
 
                 <!-- Average ATS Score -->
-                <div class="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm">
-                    <span class="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">ATS Score Rating</span>
+                <div class="bg-gradient-to-br from-purple-600 via-purple-700 to-fuchsia-800 border border-purple-500/30 p-5 rounded-2xl text-white shadow-lg shadow-purple-500/10 transition-all duration-300">
+                    <span class="text-[10px] text-purple-200 font-bold block uppercase tracking-wider">ATS Score Rating</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="text-2xl font-black text-gray-800"><?php echo $student['resume_score'] ?: 0; ?>%</span>
-                        <span class="text-[10px] text-indigo-600 font-bold">Good</span>
+                        <span class="text-2xl font-black text-white"><?php echo $student['resume_score'] ?: 0; ?>%</span>
+                        <span class="text-[10px] text-indigo-200 font-bold">Good</span>
                     </div>
-                    <span class="text-[9px] text-gray-400 block mt-2">Resume match calibration</span>
+                    <span class="text-[9px] text-purple-200 block mt-2">Resume match calibration</span>
                 </div>
 
                 <!-- Wallet Rewards -->
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                    <span class="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">Wallet Balance</span>
+                <div class="bg-gradient-to-br from-amber-600 via-amber-700 to-orange-850 border border-amber-500/30 p-5 rounded-2xl text-white shadow-lg shadow-amber-500/10 transition-all duration-300">
+                    <span class="text-[10px] text-amber-200 font-bold block uppercase tracking-wider">Wallet Balance</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span class="text-2xl font-black text-gray-800">$<?php echo number_format($student['wallet_balance'], 2); ?></span>
-                        <span class="text-[10px] text-gray-400 font-semibold">USD</span>
+                        <span class="text-2xl font-black text-white">$<?php echo number_format($student['wallet_balance'], 2); ?></span>
+                        <span class="text-[10px] text-amber-200 font-semibold">USD</span>
                     </div>
-                    <span class="text-[9px] text-gray-400 block mt-2">Unlocked via referrals</span>
+                    <span class="text-[9px] text-amber-200 block mt-2">Unlocked via referrals</span>
                 </div>
             </div>
 

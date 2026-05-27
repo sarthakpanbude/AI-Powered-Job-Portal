@@ -139,14 +139,14 @@ $referred_students = $stmt->fetchAll();
 
                 <!-- Right Side: Wallet details & instructions -->
                 <div class="space-y-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
-                        <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                    <div class="bg-gradient-to-br from-amber-600 via-amber-700 to-orange-850 border border-amber-500/30 rounded-xl shadow-lg shadow-amber-500/10 p-6 text-center text-white transition-all duration-300">
+                        <div class="w-16 h-16 bg-white/10 text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-white/10">
                             <i class="fas fa-wallet"></i>
                         </div>
-                        <h4 class="text-sm font-semibold text-gray-500 uppercase">Wallet Balance</h4>
-                        <p class="text-4xl font-extrabold text-gray-800 mt-2">$<?php echo number_format($student['wallet_balance'], 2); ?></p>
-                        <p class="text-xs text-gray-400 mt-1">Pending payments release automatically</p>
-                        <button class="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-semibold transition">Payout History</button>
+                        <h4 class="text-sm font-semibold text-amber-200 uppercase">Wallet Balance</h4>
+                        <p class="text-4xl font-extrabold text-white mt-2">$<?php echo number_format($student['wallet_balance'], 2); ?></p>
+                        <p class="text-xs text-amber-200/80 mt-1">Pending payments release automatically</p>
+                        <button class="w-full mt-6 bg-white/10 hover:bg-white/20 text-white border border-white/15 py-2.5 rounded-lg text-sm font-semibold transition">Payout History</button>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">

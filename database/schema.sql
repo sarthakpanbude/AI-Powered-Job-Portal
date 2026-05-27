@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `role` enum('student','recruiter','admin') NOT NULL,
   `status` enum('active','inactive','banned') DEFAULT 'active',
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expiry` datetime DEFAULT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
@@ -16,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Students Table
 CREATE TABLE IF NOT EXISTS `students` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL UNIQUE,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
@@ -26,6 +28,11 @@ CREATE TABLE IF NOT EXISTS `students` (
   `referral_code` varchar(20) UNIQUE DEFAULT NULL,
   `referred_by` varchar(20) DEFAULT NULL,
   `wallet_balance` decimal(10,2) DEFAULT 0.00,
+  `summary` text DEFAULT NULL,
+  `skills` text DEFAULT NULL,
+  `education` text DEFAULT NULL,
+  `experience` text DEFAULT NULL,
+  `portfolio_links` text DEFAULT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
@@ -34,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `students` (
 -- Recruiters Table
 CREATE TABLE IF NOT EXISTS `recruiters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL UNIQUE,
   `company_name` varchar(100) NOT NULL,
   `company_logo` varchar(255) DEFAULT 'default_company.png',
   `industry` varchar(50) DEFAULT NULL,
@@ -72,6 +79,18 @@ CREATE TABLE IF NOT EXISTS `applications` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`job_id`) REFERENCES `jobs`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON DELETE CASCADE
+);
+
+-- Saved Jobs Table
+CREATE TABLE IF NOT EXISTS `saved_jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` int(11) NOT NULL,
+  `job_id` int(11) NOT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`job_id`) REFERENCES `jobs`(`id`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_student_job` (`student_id`, `job_id`)
 );
 
 -- Interviews Table
