@@ -8,11 +8,8 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 }
 
 $user_id = $_SESSION['user_id'];
-
-// Get student details
-$stmt = $pdo->prepare("SELECT * FROM students WHERE user_id = ?");
-$stmt->execute([$user_id]);
-$student = $stmt->fetch();
+header("Location: dashboard.php");
+exit();
 
 // Fetch all students referred by this user
 $stmt = $pdo->prepare("

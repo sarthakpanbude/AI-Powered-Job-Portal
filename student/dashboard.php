@@ -241,7 +241,7 @@ $recent_applications = $stmt->fetchAll();
             
             
             <!-- Dynamic Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Applied Jobs -->
                 <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 border border-indigo-500/30 p-6 rounded-2xl text-white shadow-lg shadow-indigo-500/10 hover-card transition-all duration-300 flex items-center justify-between">
                     <div>
@@ -275,18 +275,6 @@ $recent_applications = $stmt->fetchAll();
                     </div>
                     <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
                         <i class="fas fa-brain"></i>
-                    </div>
-                </div>
-
-                <!-- Referral Balance -->
-                <div class="bg-gradient-to-br from-amber-600 via-amber-700 to-orange-850 border border-amber-500/30 p-6 rounded-2xl text-white shadow-lg shadow-amber-500/10 hover-card transition-all duration-300 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-amber-200 font-bold uppercase tracking-wider">Wallet Rewards</p>
-                        <p class="text-4xl font-extrabold mt-2 tracking-tight text-white">$<?php echo number_format($student['wallet_balance'], 2); ?></p>
-                        <p class="text-[10px] text-amber-200 font-semibold mt-1"><i class="fas fa-coins mr-0.5 text-amber-300"></i> Ready for redemption</p>
-                    </div>
-                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-sm">
-                        <i class="fas fa-wallet"></i>
                     </div>
                 </div>
             </div>
@@ -349,23 +337,6 @@ $recent_applications = $stmt->fetchAll();
                                 </div>
                                 <i class="fas fa-chevron-right text-xs text-gray-400 group-hover:text-primary transition-transform group-hover:translate-x-1"></i>
                             </a>
-
-                            <!-- Refer & Earn Panel -->
-                            <div class="bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl p-4 mt-6 relative overflow-hidden shadow-md">
-                                <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <p class="text-xs text-indigo-100 font-bold uppercase tracking-wider">Refer & Earn</p>
-                                <p class="text-[11px] text-indigo-200 mt-1">Get rewards when friends register with your code.</p>
-                                
-                                <div class="bg-white/10 border border-white/20 p-2.5 rounded-lg font-mono font-bold text-sm tracking-widest text-center mt-3 backdrop-blur-md">
-                                    <?php echo htmlspecialchars($student['referral_code']); ?>
-                                </div>
-                                
-                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($student['referral_code']); ?>'); alert('Referral code copied to clipboard!');" class="w-full bg-white text-primary text-xs font-bold py-2 rounded-lg mt-3 hover:bg-gray-50 transition shadow-sm">
-                                    <i class="fas fa-copy mr-1"></i> Copy Code
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -163,11 +163,6 @@ include 'includes/header.php';
                             <input type="text" name="last_name" class="mt-1 focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border">
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Referral Code (Optional)</label>
-                        <input type="text" name="referral_code" class="mt-1 focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Enter if you have one">
-                        <p class="text-xs text-gray-500 mt-1">Get 5% discount on premium features using a code.</p>
-                    </div>
                 </div>
 
                 <div id="recruiter_fields" style="<?php echo $type == 'student' ? 'display:none;' : ''; ?>">
