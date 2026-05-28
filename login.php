@@ -223,10 +223,15 @@ if ($role === 'student') {
         .spotlight-card:hover::before {
             opacity: 1;
         }
+        /* Smooth Hover Animation for Cards */
+        .spotlight-card {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
+        }
         .spotlight-card:hover {
-            transform: perspective(1200px) rotateX(2deg) translateY(-6px) scale(1.02);
-            border-color: rgba(99, 102, 241, 0.45);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px -5px rgba(99, 102, 241, 0.25);
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(165, 180, 252, 0.8); /* Much brighter indigo border */
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.4);
+            z-index: 10;
         }
 
         /* Spotlight Borders using mask */

@@ -16,11 +16,13 @@ $stmt = $pdo->prepare("SELECT * FROM students WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $student = $stmt->fetch();
 
-// Decode JSON fields safely
 $education = json_decode($student['education'] ?? '[]', true);
 $experience = json_decode($student['experience'] ?? '[]', true);
 $skills = json_decode($student['skills'] ?? '[]', true);
-$portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","github":"","portfolio":""}', true);
+$portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","github":"","email_link":"","portfolio":""}', true);
+$projects = json_decode($student['projects'] ?? '[]', true);
+$achievements = json_decode($student['achievements'] ?? '[]', true);
+$languages = json_decode($student['languages'] ?? '[]', true);
 $summary = $student['summary'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -30,13 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $edu_degrees = $_POST['degree'] ?? [];
     $edu_schools = $_POST['school'] ?? [];
     $edu_years = $_POST['year'] ?? [];
+    $edu_marks = $_POST['marks'] ?? [];
     $education_data = [];
     for($i=0; $i < count($edu_degrees); $i++) {
         if(!empty($edu_degrees[$i])) {
             $education_data[] = [
                 'degree' => $edu_degrees[$i],
-                'school' => $edu_schools[$i],
-                'year' => $edu_years[$i]
+                'school' => $edu_schools[$i] ?? '',
+                'year' => $edu_years[$i] ?? '',
+                'marks' => $edu_marks[$i] ?? ''
             ];
         }
     }
@@ -44,16 +48,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Parse Experience array
     $exp_titles = $_POST['exp_title'] ?? [];
     $exp_companies = $_POST['exp_company'] ?? [];
-    $exp_durations = $_POST['exp_duration'] ?? [];
+    $exp_starts = $_POST['exp_start'] ?? [];
+    $exp_ends = $_POST['exp_end'] ?? [];
+    $exp_durations_old = $_POST['exp_duration'] ?? [];
     $exp_descs = $_POST['exp_desc'] ?? [];
     $experience_data = [];
     for($i=0; $i < count($exp_titles); $i++) {
         if(!empty($exp_titles[$i])) {
+            $duration_str = '';
+            if(!empty($exp_starts[$i]) || !empty($exp_ends[$i])) {
+                $start = !empty($exp_starts[$i]) ? date('d/m/Y', strtotime($exp_starts[$i])) : '';
+                $end = !empty($exp_ends[$i]) ? date('d/m/Y', strtotime($exp_ends[$i])) : 'Present';
+                $duration_str = $start . ' - ' . $end;
+            } elseif (!empty($exp_durations_old[$i])) {
+                $duration_str = $exp_durations_old[$i];
+            }
+            
             $experience_data[] = [
                 'title' => $exp_titles[$i],
-                'company' => $exp_companies[$i],
-                'duration' => $exp_durations[$i],
-                'desc' => $exp_descs[$i]
+                'company' => $exp_companies[$i] ?? '',
+                'duration' => $duration_str,
+                'start_date' => $exp_starts[$i] ?? '',
+                'end_date' => $exp_ends[$i] ?? '',
+                'desc' => $exp_descs[$i] ?? ''
             ];
         }
     }
@@ -62,20 +79,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $skills_raw = $_POST['skills'] ?? '';
     $skills_data = array_filter(array_map('trim', explode(',', $skills_raw)));
 
-    // Parse Portfolio links
     $portfolio_data = [
         'linkedin' => $_POST['linkedin'] ?? '',
         'github' => $_POST['github'] ?? '',
+        'email_link' => $_POST['email_link'] ?? '',
         'portfolio' => $_POST['portfolio'] ?? ''
     ];
 
+    $proj_titles = $_POST['proj_title'] ?? [];
+    $proj_techs = $_POST['proj_tech'] ?? [];
+    $proj_descs = $_POST['proj_desc'] ?? [];
+    $projects_data = [];
+    for($i=0; $i < count($proj_titles); $i++) {
+        if(!empty($proj_titles[$i])) {
+            $projects_data[] = [
+                'title' => $proj_titles[$i],
+                'tech' => $proj_techs[$i] ?? '',
+                'desc' => $proj_descs[$i] ?? ''
+            ];
+        }
+    }
+
+    $achievements_raw = $_POST['achievements'] ?? '';
+    $achievements_data = array_filter(array_map('trim', explode("\n", $achievements_raw)));
+    
+    $languages_raw = $_POST['languages'] ?? '';
+    $languages_data = array_filter(array_map('trim', explode(',', $languages_raw)));
+
     // Calculate dynamic ATS Score based on completeness and keywords
     $score = 40; // Base score
-    if(count($education_data) > 0) $score += 15;
-    if(count($experience_data) > 0) $score += 20;
-    if(count($skills_data) >= 5) $score += 15;
-    elseif(count($skills_data) > 0) $score += 10;
-    if(!empty($summary)) $score += 15;
+    if(count($education_data) > 0) $score += 10;
+    if(count($experience_data) > 0) $score += 15;
+    if(count($skills_data) >= 5) $score += 10;
+    elseif(count($skills_data) > 0) $score += 5;
+    if(count($projects_data) > 0) $score += 10;
+    if(!empty($summary)) $score += 5;
     
     $link_count = 0;
     foreach($portfolio_data as $l) {
@@ -84,13 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $score += min(10, $link_count * 5);
     $score = min(100, $score);
     
-    $stmt = $pdo->prepare("UPDATE students SET education = ?, experience = ?, skills = ?, portfolio_links = ?, summary = ?, resume_score = ? WHERE user_id = ?");
+    $stmt = $pdo->prepare("UPDATE students SET education = ?, experience = ?, skills = ?, portfolio_links = ?, summary = ?, projects = ?, achievements = ?, languages = ?, resume_score = ? WHERE user_id = ?");
     if($stmt->execute([
         json_encode($education_data),
         json_encode($experience_data),
         json_encode($skills_data),
         json_encode($portfolio_data),
         $summary,
+        json_encode($projects_data),
+        json_encode(array_values($achievements_data)),
+        json_encode(array_values($languages_data)),
         $score,
         $user_id
     ])) {
@@ -114,7 +155,10 @@ $student = $stmt->fetch();
 $education = json_decode($student['education'] ?? '[]', true);
 $experience = json_decode($student['experience'] ?? '[]', true);
 $skills = json_decode($student['skills'] ?? '[]', true);
-$portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","github":"","portfolio":""}', true);
+$portfolio_links = json_decode($student['portfolio_links'] ?? '{"linkedin":"","github":"","email_link":"","portfolio":""}', true);
+$projects = json_decode($student['projects'] ?? '[]', true);
+$achievements = json_decode($student['achievements'] ?? '[]', true);
+$languages = json_decode($student['languages'] ?? '[]', true);
 $summary = $student['summary'] ?? '';
 
 // Fetch active jobs for matching
@@ -190,7 +234,7 @@ $active_jobs = $stmt_jobs->fetchAll();
                 <!-- Portfolio Links -->
                 <div>
                     <h4 class="font-bold text-gray-700 mb-3"><i class="fas fa-link mr-1"></i> Links & Socials</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-500">LinkedIn</label>
                             <input type="url" name="linkedin" value="<?php echo htmlspecialchars($portfolio_links['linkedin'] ?? ''); ?>" class="mt-1 w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm" placeholder="https://linkedin.com/in/...">
@@ -198,6 +242,10 @@ $active_jobs = $stmt_jobs->fetchAll();
                         <div>
                             <label class="block text-xs font-medium text-gray-500">GitHub</label>
                             <input type="url" name="github" value="<?php echo htmlspecialchars($portfolio_links['github'] ?? ''); ?>" class="mt-1 w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm" placeholder="https://github.com/...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500">Email</label>
+                            <input type="email" name="email_link" value="<?php echo htmlspecialchars($portfolio_links['email_link'] ?? ''); ?>" class="mt-1 w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm" placeholder="mail@example.com">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500">Portfolio</label>
@@ -228,17 +276,19 @@ $active_jobs = $stmt_jobs->fetchAll();
                     </div>
                     <div id="education-container" class="space-y-4">
                         <?php if(empty($education)): ?>
-                            <div class="grid grid-cols-3 gap-3 p-3 border border-dashed rounded-lg bg-gray-50">
-                                <input type="text" name="degree[]" placeholder="Degree (e.g. BSCS)" class="border border-gray-300 rounded p-1.5 text-sm">
-                                <input type="text" name="school[]" placeholder="School/Uni" class="border border-gray-300 rounded p-1.5 text-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 border border-dashed rounded-lg bg-gray-50">
+                                <input type="text" name="degree[]" placeholder="Degree (e.g. SSC, B.Tech)" class="border border-gray-300 rounded p-1.5 text-sm">
+                                <input type="text" name="school[]" placeholder="Institute/School" class="border border-gray-300 rounded p-1.5 text-sm">
                                 <input type="text" name="year[]" placeholder="Year (e.g. 2024)" class="border border-gray-300 rounded p-1.5 text-sm">
+                                <input type="text" name="marks[]" placeholder="Marks / CGPA" class="border border-gray-300 rounded p-1.5 text-sm">
                             </div>
                         <?php else: ?>
                             <?php foreach($education as $edu): ?>
-                                <div class="grid grid-cols-3 gap-3 p-3 border border-dashed rounded-lg bg-gray-50 relative">
-                                    <input type="text" name="degree[]" value="<?php echo htmlspecialchars($edu['degree']); ?>" placeholder="Degree" class="border border-gray-300 rounded p-1.5 text-sm">
-                                    <input type="text" name="school[]" value="<?php echo htmlspecialchars($edu['school']); ?>" placeholder="School" class="border border-gray-300 rounded p-1.5 text-sm">
-                                    <input type="text" name="year[]" value="<?php echo htmlspecialchars($edu['year']); ?>" placeholder="Year" class="border border-gray-300 rounded p-1.5 text-sm">
+                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 border border-dashed rounded-lg bg-gray-50 relative">
+                                    <input type="text" name="degree[]" value="<?php echo htmlspecialchars($edu['degree'] ?? ''); ?>" placeholder="Degree (e.g. SSC)" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    <input type="text" name="school[]" value="<?php echo htmlspecialchars($edu['school'] ?? ''); ?>" placeholder="Institute" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    <input type="text" name="year[]" value="<?php echo htmlspecialchars($edu['year'] ?? ''); ?>" placeholder="Year" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    <input type="text" name="marks[]" value="<?php echo htmlspecialchars($edu['marks'] ?? ''); ?>" placeholder="Marks / CGPA" class="border border-gray-300 rounded p-1.5 text-sm">
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -254,26 +304,76 @@ $active_jobs = $stmt_jobs->fetchAll();
                     <div id="experience-container" class="space-y-4">
                         <?php if(empty($experience)): ?>
                             <div class="p-3 border border-dashed rounded-lg bg-gray-50 space-y-2">
-                                <div class="grid grid-cols-3 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <input type="text" name="exp_title[]" placeholder="Job Title" class="border border-gray-300 rounded p-1.5 text-sm">
                                     <input type="text" name="exp_company[]" placeholder="Company Name" class="border border-gray-300 rounded p-1.5 text-sm">
-                                    <input type="text" name="exp_duration[]" placeholder="Duration (e.g. 2021-2023)" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    <div class="flex gap-2">
+                                        <input type="date" name="exp_start[]" class="w-full border border-gray-300 rounded p-1.5 text-sm" title="Start Date">
+                                        <input type="date" name="exp_end[]" class="w-full border border-gray-300 rounded p-1.5 text-sm" title="End Date">
+                                    </div>
                                 </div>
                                 <textarea name="exp_desc[]" placeholder="Brief details about what you did..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"></textarea>
                             </div>
                         <?php else: ?>
                             <?php foreach($experience as $exp): ?>
                                 <div class="p-3 border border-dashed rounded-lg bg-gray-50 space-y-2">
-                                    <div class="grid grid-cols-3 gap-3">
-                                        <input type="text" name="exp_title[]" value="<?php echo htmlspecialchars($exp['title']); ?>" placeholder="Job Title" class="border border-gray-300 rounded p-1.5 text-sm">
-                                        <input type="text" name="exp_company[]" value="<?php echo htmlspecialchars($exp['company']); ?>" placeholder="Company" class="border border-gray-300 rounded p-1.5 text-sm">
-                                        <input type="text" name="exp_duration[]" value="<?php echo htmlspecialchars($exp['duration']); ?>" placeholder="Duration" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <input type="text" name="exp_title[]" value="<?php echo htmlspecialchars(is_array($exp) ? ($exp['title'] ?? '') : ''); ?>" placeholder="Job Title" class="border border-gray-300 rounded p-1.5 text-sm">
+                                        <input type="text" name="exp_company[]" value="<?php echo htmlspecialchars(is_array($exp) ? ($exp['company'] ?? '') : ''); ?>" placeholder="Company" class="border border-gray-300 rounded p-1.5 text-sm">
+                                        <div class="flex gap-2">
+                                            <input type="date" name="exp_start[]" value="<?php echo htmlspecialchars(is_array($exp) ? ($exp['start_date'] ?? '') : ''); ?>" class="w-full border border-gray-300 rounded p-1.5 text-sm" title="Start Date">
+                                            <input type="date" name="exp_end[]" value="<?php echo htmlspecialchars(is_array($exp) ? ($exp['end_date'] ?? '') : ''); ?>" class="w-full border border-gray-300 rounded p-1.5 text-sm" title="End Date">
+                                            <input type="hidden" name="exp_duration[]" value="<?php echo htmlspecialchars(is_array($exp) ? ($exp['duration'] ?? '') : ''); ?>">
+                                        </div>
                                     </div>
-                                    <textarea name="exp_desc[]" placeholder="Details..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"><?php echo htmlspecialchars($exp['desc']); ?></textarea>
+                                    <textarea name="exp_desc[]" placeholder="Details..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"><?php echo htmlspecialchars(is_array($exp) ? ($exp['desc'] ?? '') : ''); ?></textarea>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
+                </div>
+
+                <!-- Projects -->
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-gray-700"><i class="fas fa-project-diagram mr-1"></i> Projects</h4>
+                        <button type="button" onclick="addProjectRow()" class="text-xs text-primary font-bold hover:underline"><i class="fas fa-plus mr-1"></i> Add More</button>
+                    </div>
+                    <div id="projects-container" class="space-y-4">
+                        <?php if(empty($projects)): ?>
+                            <div class="p-3 border border-dashed rounded-lg bg-gray-50 space-y-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <input type="text" name="proj_title[]" placeholder="Project Name" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    <input type="text" name="proj_tech[]" placeholder="Tech Stack (e.g. Power BI, SQL)" class="border border-gray-300 rounded p-1.5 text-sm">
+                                </div>
+                                <textarea name="proj_desc[]" placeholder="Project Details (Use dashes for bullets)..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"></textarea>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach($projects as $proj): ?>
+                                <div class="p-3 border border-dashed rounded-lg bg-gray-50 space-y-2">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input type="text" name="proj_title[]" value="<?php echo htmlspecialchars(is_array($proj) ? ($proj['title'] ?? '') : ''); ?>" placeholder="Project Name" class="border border-gray-300 rounded p-1.5 text-sm">
+                                        <input type="text" name="proj_tech[]" value="<?php echo htmlspecialchars(is_array($proj) ? ($proj['tech'] ?? '') : ''); ?>" placeholder="Tech Stack" class="border border-gray-300 rounded p-1.5 text-sm">
+                                    </div>
+                                    <textarea name="proj_desc[]" placeholder="Project Details (Use dashes for bullets)..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"><?php echo htmlspecialchars(is_array($proj) ? ($proj['desc'] ?? '') : ''); ?></textarea>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <!-- Achievements -->
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-3"><i class="fas fa-trophy mr-1"></i> Achievements & Certifications</h4>
+                    <label class="block text-xs font-medium text-gray-500">One per line</label>
+                    <textarea name="achievements" placeholder="Participated in State Level Coding...&#10;Completed 6-Month Data Analytics..." rows="3" class="mt-1 w-full border border-gray-300 rounded px-2.5 py-2 text-sm"><?php echo htmlspecialchars(implode("\n", $achievements)); ?></textarea>
+                </div>
+                
+                <!-- Languages -->
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-3"><i class="fas fa-language mr-1"></i> Languages</h4>
+                    <label class="block text-xs font-medium text-gray-500">Languages (Comma separated)</label>
+                    <input type="text" name="languages" value="<?php echo htmlspecialchars(implode(', ', $languages)); ?>" class="mt-1 w-full border border-gray-300 rounded px-2.5 py-2 text-sm" placeholder="e.g. English (Fluent), Marathi (Native)">
                 </div>
 
                 <div class="pt-4">
@@ -297,91 +397,166 @@ $active_jobs = $stmt_jobs->fetchAll();
             </div>
 
             <!-- Tab 1: Live Dynamic Resume Preview -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 min-h-[700px] flex flex-col justify-between transition-all duration-300" id="resume-preview">
-                <div class="space-y-6">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 min-h-[700px] flex flex-col transition-all duration-300 text-gray-900" id="resume-preview" style="font-family: Arial, Helvetica, sans-serif;">
+                <div class="flex-1">
                     <!-- Header -->
-                    <div class="border-b pb-6 text-center sm:text-left">
-                        <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1"><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></h2>
-                        <div class="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-gray-500 mt-2 font-medium">
-                            <span><i class="fas fa-envelope mr-1 text-primary"></i> <?php echo htmlspecialchars($_SESSION['email']); ?></span>
+                    <div class="text-center mb-4">
+                        <h2 class="text-2xl font-bold uppercase tracking-wide text-black mb-1"><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></h2>
+                        <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[11px] text-gray-800">
                             <?php if($student['phone']): ?>
-                                <span><i class="fas fa-phone mr-1 text-primary"></i> <?php echo htmlspecialchars($student['phone']); ?></span>
+                                <span class="flex items-center gap-1"><i class="fas fa-phone-alt"></i> <?php echo htmlspecialchars($student['phone']); ?></span>
                             <?php endif; ?>
-                        </div>
-                        
-                        <!-- Links -->
-                        <div class="flex justify-center sm:justify-start gap-4 text-xs font-semibold text-primary mt-4">
+                            <?php $display_email = !empty($portfolio_links['email_link']) ? $portfolio_links['email_link'] : $_SESSION['email']; ?>
+                            <a href="mailto:<?php echo htmlspecialchars($display_email); ?>" class="flex items-center gap-1 hover:underline text-black"><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($display_email); ?></a>
+                            
                             <?php if(!empty($portfolio_links['linkedin'])): ?>
-                                <a href="<?php echo htmlspecialchars($portfolio_links['linkedin']); ?>" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                                <a href="<?php echo htmlspecialchars($portfolio_links['linkedin']); ?>" target="_blank" class="flex items-center gap-1 hover:underline text-black"><i class="fab fa-linkedin"></i> <?php echo preg_replace('#^https?://(www\.)?#', '', htmlspecialchars($portfolio_links['linkedin'])); ?></a>
                             <?php endif; ?>
                             <?php if(!empty($portfolio_links['github'])): ?>
-                                <a href="<?php echo htmlspecialchars($portfolio_links['github']); ?>" target="_blank"><i class="fab fa-github"></i> GitHub</a>
-                            <?php endif; ?>
-                            <?php if(!empty($portfolio_links['portfolio'])): ?>
-                                <a href="<?php echo htmlspecialchars($portfolio_links['portfolio']); ?>" target="_blank"><i class="fas fa-globe"></i> Portfolio</a>
+                                <a href="<?php echo htmlspecialchars($portfolio_links['github']); ?>" target="_blank" class="flex items-center gap-1 hover:underline text-black"><i class="fab fa-github"></i> <?php echo preg_replace('#^https?://(www\.)?#', '', htmlspecialchars($portfolio_links['github'])); ?></a>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <!-- Professional Summary preview -->
-                    <?php if(!empty($summary)): ?>
-                        <div>
-                            <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Professional Summary</h3>
-                            <p class="text-xs text-gray-600 leading-relaxed font-medium"><?php echo nl2br(htmlspecialchars($summary)); ?></p>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Skills preview -->
-                    <?php if(!empty($skills)): ?>
-                        <div>
-                            <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Technical Skills</h3>
-                            <div class="flex flex-wrap gap-1.5">
-                                <?php foreach($skills as $skill): ?>
-                                    <span class="bg-gray-100 text-gray-800 text-xs px-2.5 py-1 rounded font-medium border border-gray-200"><?php echo htmlspecialchars($skill); ?></span>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Experience preview -->
-                    <?php if(!empty($experience)): ?>
-                        <div>
-                            <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-3">Work Experience</h3>
-                            <div class="space-y-4">
-                                <?php foreach($experience as $exp): ?>
-                                    <div>
-                                        <div class="flex justify-between items-start text-sm">
-                                            <h4 class="font-bold text-gray-800"><?php echo htmlspecialchars($exp['title']); ?> <span class="font-normal text-gray-500">at <?php echo htmlspecialchars($exp['company']); ?></span></h4>
-                                            <span class="text-xs font-semibold text-gray-400 bg-gray-50 border border-gray-100 rounded px-1.5 py-0.5"><?php echo htmlspecialchars($exp['duration']); ?></span>
-                                        </div>
-                                        <p class="text-xs text-gray-600 mt-1 leading-relaxed"><?php echo nl2br(htmlspecialchars($exp['desc'])); ?></p>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Education preview -->
+                    <!-- Education -->
                     <?php if(!empty($education)): ?>
-                        <div>
-                            <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-3">Education</h3>
-                            <div class="space-y-3">
+                        <div class="mb-4">
+                            <h3 class="text-[13px] font-bold uppercase border-b border-black pb-0.5 mb-2 tracking-wide" style="font-variant: small-caps;">Education</h3>
+                            <div class="space-y-2">
                                 <?php foreach($education as $edu): ?>
-                                    <div class="flex justify-between text-sm">
-                                        <div>
-                                            <h4 class="font-bold text-gray-800"><?php echo htmlspecialchars($edu['degree']); ?></h4>
-                                            <p class="text-xs text-gray-500"><?php echo htmlspecialchars($edu['school']); ?></p>
+                                    <?php if(is_array($edu)): ?>
+                                    <div class="text-[11px]">
+                                        <div class="flex justify-between items-start font-bold">
+                                            <span><?php echo htmlspecialchars($edu['school'] ?? ''); ?></span>
+                                            <span><?php echo htmlspecialchars($edu['year'] ?? ''); ?></span>
                                         </div>
-                                        <span class="text-xs font-semibold text-gray-400"><?php echo htmlspecialchars($edu['year']); ?></span>
+                                        <div class="flex justify-between items-start italic mt-0.5">
+                                            <span><?php echo htmlspecialchars($edu['degree'] ?? ''); ?></span>
+                                            <?php if(!empty($edu['marks'])): ?>
+                                                <span class="font-bold not-italic">Percentage : <?php echo htmlspecialchars($edu['marks']); ?></span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             </div>
                         </div>
                     <?php endif; ?>
-                </div>
 
-                <div class="border-t pt-6 text-center text-[10px] text-gray-400">
-                    Generated via TechnoHacks Job Portal Resume Builder.
+                    <!-- Technical Skills -->
+                    <?php if(!empty($skills)): ?>
+                        <div class="mb-4">
+                            <h3 class="text-[13px] font-bold uppercase border-b border-black pb-0.5 mb-2 tracking-wide" style="font-variant: small-caps;">Technical Skills</h3>
+                            <div class="text-[11px] leading-relaxed">
+                                <span class="font-bold">- Skills: </span> 
+                                <?php echo htmlspecialchars(implode(', ', $skills)); ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Experience -->
+                    <?php if(!empty($experience)): ?>
+                        <div class="mb-4">
+                            <h3 class="text-[13px] font-bold uppercase border-b border-black pb-0.5 mb-2 tracking-wide" style="font-variant: small-caps;">Experience</h3>
+                            <div class="space-y-3">
+                                <?php foreach($experience as $exp): ?>
+                                    <?php if(is_array($exp)): ?>
+                                    <div class="text-[11px]">
+                                        <div class="flex justify-between items-start font-bold">
+                                            <span><?php echo htmlspecialchars($exp['title'] ?? ''); ?></span>
+                                            <span class="font-normal"><?php echo htmlspecialchars($exp['duration'] ?? ''); ?></span>
+                                        </div>
+                                        <div class="italic mb-1 text-gray-800">
+                                            <?php echo htmlspecialchars($exp['company'] ?? ''); ?>
+                                        </div>
+                                        <?php if(!empty($exp['desc'])): ?>
+                                            <ul class="list-disc pl-4 space-y-0.5 text-gray-800">
+                                                <?php 
+                                                    $desc_lines = explode("\n", $exp['desc']);
+                                                    foreach($desc_lines as $line) {
+                                                        $line = trim(preg_replace('/^-/', '', trim($line))); // remove leading dashes
+                                                        if(!empty($line)) {
+                                                            echo '<li>' . htmlspecialchars($line) . '</li>';
+                                                        }
+                                                    }
+                                                ?>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Projects -->
+                    <div class="mb-4">
+                        <h3 class="text-[13px] font-bold uppercase border-b border-black pb-0.5 mb-2 tracking-wide" style="font-variant: small-caps;">Projects</h3>
+                        <?php if(!empty($projects)): ?>
+                            <div class="space-y-3">
+                                <?php foreach($projects as $proj): ?>
+                                    <?php if(is_array($proj)): ?>
+                                    <div class="text-[11px]">
+                                        <div class="font-bold underline mb-1">
+                                            <?php echo htmlspecialchars($proj['title'] ?? ''); ?>
+                                            <?php if(!empty($proj['tech'])): ?>
+                                                <span class="font-normal no-underline text-gray-600 ml-1">| <i><?php echo htmlspecialchars($proj['tech']); ?></i></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if(!empty($proj['desc'])): ?>
+                                            <ul class="list-disc pl-4 space-y-0.5 text-gray-800">
+                                                <?php 
+                                                    $desc_lines = explode("\n", $proj['desc']);
+                                                    foreach($desc_lines as $line) {
+                                                        $line = trim(preg_replace('/^-/', '', trim($line)));
+                                                        if(!empty($line)) {
+                                                            echo '<li>' . htmlspecialchars($line) . '</li>';
+                                                        }
+                                                    }
+                                                ?>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-[11px] text-gray-400 italic">Add your projects from the form on the left.</p>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Achievements/Certifications -->
+                    <div class="mb-4">
+                        <h3 class="text-[13px] font-bold uppercase border-b border-black pb-0.5 mb-2 tracking-wide" style="font-variant: small-caps;">Achievements/Certifications</h3>
+                        <?php if(!empty($achievements)): ?>
+                            <ul class="list-disc pl-4 space-y-0.5 text-[11px] text-gray-800">
+                                <?php foreach($achievements as $ach): ?>
+                                    <?php if(!empty(trim($ach))): ?>
+                                        <li><?php echo htmlspecialchars(trim($ach)); ?></li>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-[11px] text-gray-400 italic">Add your achievements from the form on the left.</p>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Languages -->
+                    <div class="mb-4">
+                        <h3 class="text-[13px] font-bold uppercase border-b border-black pb-0.5 mb-2 tracking-wide" style="font-variant: small-caps;">Languages :</h3>
+                        <?php if(!empty($languages)): ?>
+                            <div class="flex flex-wrap gap-x-8 gap-y-1 text-[11px] pl-2 text-gray-800 mt-2">
+                                <?php foreach($languages as $lang): ?>
+                                    <?php if(!empty(trim($lang))): ?>
+                                        <span class="flex items-center before:content-['•'] before:mr-1.5 before:font-bold"><?php echo htmlspecialchars(trim($lang)); ?></span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-[11px] text-gray-400 italic">Add your languages from the form on the left.</p>
+                        <?php endif; ?>
+                    </div>
+
                 </div>
             </div>
 
@@ -484,11 +659,12 @@ $active_jobs = $stmt_jobs->fetchAll();
         function addEducationRow() {
             const container = document.getElementById('education-container');
             const row = document.createElement('div');
-            row.className = 'grid grid-cols-3 gap-3 p-3 border border-dashed rounded-lg bg-gray-50';
+            row.className = 'grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 border border-dashed rounded-lg bg-gray-50';
             row.innerHTML = `
-                <input type="text" name="degree[]" placeholder="Degree" class="border border-gray-300 rounded p-1.5 text-sm">
-                <input type="text" name="school[]" placeholder="School/Uni" class="border border-gray-300 rounded p-1.5 text-sm">
+                <input type="text" name="degree[]" placeholder="Degree (e.g. SSC, B.Tech)" class="border border-gray-300 rounded p-1.5 text-sm">
+                <input type="text" name="school[]" placeholder="Institute/School" class="border border-gray-300 rounded p-1.5 text-sm">
                 <input type="text" name="year[]" placeholder="Year" class="border border-gray-300 rounded p-1.5 text-sm">
+                <input type="text" name="marks[]" placeholder="Marks / CGPA" class="border border-gray-300 rounded p-1.5 text-sm">
             `;
             container.appendChild(row);
         }
@@ -498,12 +674,29 @@ $active_jobs = $stmt_jobs->fetchAll();
             const row = document.createElement('div');
             row.className = 'p-3 border border-dashed rounded-lg bg-gray-50 space-y-2';
             row.innerHTML = `
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" name="exp_title[]" placeholder="Job Title" class="border border-gray-300 rounded p-1.5 text-sm">
                     <input type="text" name="exp_company[]" placeholder="Company Name" class="border border-gray-300 rounded p-1.5 text-sm">
-                    <input type="text" name="exp_duration[]" placeholder="Duration" class="border border-gray-300 rounded p-1.5 text-sm">
+                    <div class="flex gap-2">
+                        <input type="date" name="exp_start[]" class="w-full border border-gray-300 rounded p-1.5 text-sm" title="Start Date">
+                        <input type="date" name="exp_end[]" class="w-full border border-gray-300 rounded p-1.5 text-sm" title="End Date">
+                    </div>
                 </div>
                 <textarea name="exp_desc[]" placeholder="Brief details about what you did..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"></textarea>
+            `;
+            container.appendChild(row);
+        }
+
+        function addProjectRow() {
+            const container = document.getElementById('projects-container');
+            const row = document.createElement('div');
+            row.className = 'p-3 border border-dashed rounded-lg bg-gray-50 space-y-2';
+            row.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" name="proj_title[]" placeholder="Project Name" class="border border-gray-300 rounded p-1.5 text-sm">
+                    <input type="text" name="proj_tech[]" placeholder="Tech Stack" class="border border-gray-300 rounded p-1.5 text-sm">
+                </div>
+                <textarea name="proj_desc[]" placeholder="Project Details (Use dashes for bullets)..." rows="2" class="w-full border border-gray-300 rounded p-1.5 text-sm"></textarea>
             `;
             container.appendChild(row);
         }
